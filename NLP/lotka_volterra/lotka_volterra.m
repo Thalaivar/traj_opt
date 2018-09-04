@@ -18,7 +18,7 @@ ode_samples = y;
 alg = 'sqp';
 
 % setup NLP
-x0 = zeros(2*N + 2 + 1, 1);
+x0 = zeros(2*N + 2 + 1 +, 1);
 x0(1:N+1,1) = ode_samples(:,1); x0(N+2:2*N+2,1) = ode_samples(:,2); x0(2*N + 2 + 1, 1) = cheb_t(1) - cheb_t(end);
 lb = zeros(2*N + 1+2, 1);
 options = optimoptions('fmincon', 'Display', 'Iter', 'Algorithm', alg, 'MaxFunctionEvaluations', 200000, 'StepTolerance', 1e-15);
