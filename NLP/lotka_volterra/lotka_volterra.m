@@ -3,7 +3,7 @@ n_p = 4;
 
 % simulate LV system
 y0 = [0.9; 0.9]; % starting at 900 of prey and predator
-tspan = [6.301, 22.099];   % time in years
+tspan = [6.301, 14.2];   % time in years
 [D, cheb_x] = cheb_diff(N);
 cheb_t = ((tspan(2)-tspan(1))/2)*cheb_x + (sum(tspan))/2;
 
@@ -11,11 +11,14 @@ cheb_t = ((tspan(2)-tspan(1))/2)*cheb_x + (sum(tspan))/2;
 
 % ode_samples = sample_ode(t, cheb_t, y);
 ode_samples = interp1(t, y, cheb_t, 'pchip');
-plot(cheb_t, ode_samples(:,1), '-r', cheb_t, ode_samples(:,2), '-b');
+%plot(cheb_t, ode_samples(:,1), '-r', cheb_t, ode_samples(:,2), '-b');
 
 % optimisation algorithm
 % alg = 'interior-point';
 alg = 'sqp';
+
+
+[c, ceq] = state_const(x0);
 
 % setup NLP
 x0 = zeros(2*N + 2 + n_p + 1, 1);
@@ -29,6 +32,9 @@ lb(end,1) = x0(end,1);
 ub = ones(2*N + 2 + n_p + 1, 1);
 ub(1:N+1, 1) = 1.8*ub(1:N+1, 1); ub(N+2:2*N+2, 1) = 1.0*ub(N+2:2*N+2, 1);
 ub(2*N+2+1:end, 1) = Inf*ub(2*N+2+1:end, 1);
+
+[c,ceq] = state_const(x0);
+norm(ceq)
 
 options = optimoptions('fmincon', 'Display', 'Iter', 'Algorithm', alg, 'MaxFunctionEvaluations', 200000, 'StepTolerance', 1e-15);
 [x, fval] = fmincon(@objfun, x0, [], [], [], [], lb, ub, @state_const, options);
@@ -100,7 +106,7 @@ end
 function [c, ceq] = state_const(x)
     N = (length(x)-7)/2;
     n_p = 4;
-    xk = x(1:N+1, 1); yk = x(N+2:2*N+2, 1); T = x(2*N + 2 + 1, 1);
+    xk = x(1:N+1, 1); yk = x(N+2:2*N+2, 1); T = x(end, 1);
     p = x(2*N+2+1:2*N+2 + n_p, 1);
     % get chebyshev matrix
     [D, ~] = cheb_diff(N);
