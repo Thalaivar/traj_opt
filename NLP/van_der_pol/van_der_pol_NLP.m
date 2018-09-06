@@ -18,11 +18,15 @@ alg = 'sqp';
 % setup NLP
 x0 = ones(2*N + 2 + 1, 1);
 x0(1:N+1, 1) = ode_samples(:, 1); x0(N+2:2*N + 2, 1) = ode_samples(:, 2);
-x0(end) = cheb_t(1) - cheb_t(end);x0(1,1) =  x0(N+1,1);x0(N+2,1) =  x0(2*N+2, 1);
+x0(end) = cheb_t(1) - cheb_t(end);%x0(1,1) =  x0(N+1,1);x0(N+2,1) =  x0(2*N+2, 1);
 lb = ones(2*N + 2 + 1, 1); lb(1:N+1, 1) = -3*lb(1:N+1, 1); lb(N+2:2*N + 2, 1) = -3*lb(N+2:2*N + 2, 1);
 lb(end) = [];
 ub = ones(2*N + 2 + 1, 1); ub(1:N+1, 1) = 3*ub(1:N+1, 1); ub(N+2:2*N + 2, 1) = 3*ub(N+2:2*N + 2, 1);
 ub(end) = [];
+
+%[c,ceq] = state_const(x0);
+%sum(ceq)/length(ceq)   
+%norm(ceq)
 
 options = optimoptions('fmincon', 'Display', 'Iter', 'Algorithm', alg, 'MaxFunctionEvaluations', 200000, 'StepTolerance', 1e-15, 'MaxIterations', 1000);
 [x, fval] = fmincon(@objfun, x0, [], [], [], [], lb, ub, @state_const, options);
@@ -82,7 +86,7 @@ function [c, ceq] = state_const(x)
     xdot = [fx;fy];
     
     c = [];
-    ceq = xdot - xdot_cap;
+    ceq = xdot_cap - xdot;
 end
 
 function f = objfun(x)
