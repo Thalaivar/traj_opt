@@ -7,7 +7,7 @@ nu = 1;
 % simulate VDP system
 %y0 = [0; 1];
 y0 = [0.8986; 2.668];
-tspan = [0, 15];
+tspan = [0, 5.5];
 % tspan = [6.961, 13.49];
 [D, cheb_x] = cheb_diff(N);
 %cheb_t = tspan;
@@ -19,7 +19,10 @@ cheb_t = ((tspan(2)-tspan(1))/2)*cheb_x + (sum(tspan))/2;
 [t, y] = ode45(@VDP, cheb_t, y0);
 ode_samples = y;
 
-%plot(cheb_t, ode_samples(:,1), '-r', cheb_t, ode_samples(:,2), '-b');
+% plot(ode_samples(:,1),ode_samples(:,2));
+% plot(cheb_t, ode_samples(:,1), '-r', cheb_t, ode_samples(:,2), '-b');
+
+%%
 
 alg = 'sqp';
 % alg = 'interior-point';
