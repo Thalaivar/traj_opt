@@ -95,18 +95,18 @@ function [c, ceq] = state_const(x)
     xdot_cap = (2/T)*diffmat*[xk;yk];
     
     % get actual derivative
-    fx = zeros(N+1,1); fy = zeros(N+1,1);
-    for i = 1:N+1
-        temp = VDP(0, [xk(i);yk(i)]);
-        fx(i, 1) = temp(1,1); fy(i, 1) = temp(2,1);
-    end
-    xdot = [fx;fy];
-    
-    c = [];
-    ceq = xdot_cap - xdot;
-    
-    ceq(end+1) = x(1)-x(N+1);
-    ceq(end+1) = x(N+2)-x(2*N+2);
+fx = zeros(N+1,1); fy = zeros(N+1,1);
+for i = 1:N+1
+    temp = VDP(0, [xk(i);yk(i)]);
+    fx(i, 1) = temp(1,1); fy(i, 1) = temp(2,1);
+end
+xdot = [fx;fy];
+
+c = [];
+ceq = xdot_cap - xdot;
+
+ceq(end+1) = x(1)-x(N+1);
+ceq(end+1) = x(N+2)-x(2*N+2);
 end
 
 function f = objfun(x)
