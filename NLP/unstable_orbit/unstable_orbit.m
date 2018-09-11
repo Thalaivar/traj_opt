@@ -1,74 +1,54 @@
+
+clear all
+clc
+
 N = 100;
 
-y0 = [1; 0];
-tspan = [0, 3];
-[D, cheb_x] = cheb_diff(N);
-cheb_t = flip(((tspan(2)-tspan(1))/2)*cheb_x + (sum(tspan))/2);
+% stable orbit
+d = -2;
+a = -3;
+b = 5;
+c = pi;
+nu = -pi;
+omega = pi;
+p = [a, b, c, d ,nu, omega];
 
-[t, state] = ode45(@system, tspan, y0);
+[D, cheb_x] = cheb_diff(N-1);
+tspan = [0, 2];
+Tguess = tspan(2) - tspan(1);
+cheb_t = 0.5*Tguess*(1 - cheb_x);
+y0 = [0.1;0];
+odeopts = odeset('AbsTol',1e-11,'RelTol',1e-11,'MaxStep',0.001);
+[t, xguess] = ode45(@(t, y) sys_model(t, y, p), cheb_t, y0, odeopts);
 
-ode_samples = interp1(t, state, cheb_t);
-xy_samp = get_xy(ode_samples);
-plot(xy_samp(:,1), xy_samp(:,2), '-b','Linewidth', 2.0)
+% first check for initial guess
+xsamp = xguess(:,1).*cos(xguess(:,2));
+ysamp = xguess(:,1).*sin(xguess(:,2));
+plot(xsamp, ysamp, 'b', 'Linewidth', 2.0 )
 hold on
-x0 = zeros(2*N+2+1, 1); lb = ones(2*N+2+1, 1); ub = ones(2*N+2+1, 1);
-x0(1:N+1, 1) = ode_samples(:,1); x0(N+2:2*N+2, 1) = ode_samples(:,2); x0(end,1) = cheb_t(end) - cheb_t(1);
-lb(1:N+1, 1) = 1*lb(1:N+1, 1); lb(N+2:2*N+2, 1) = 0*lb(N+2:2*N+2, 1); lb(end,1) = 2;
-ub(1:N+1, 1) = 2*ub(1:N+1, 1); ub(N+2:2*N+2, 1) = 13*ub(N+2:2*N+2, 1); ub(end,1) = 3;
 
-[c, ceq] = state_const(x0);
-norm(ceq)/length(ceq)
-options = optimoptions('fmincon', 'Display', 'Iter', 'Algorithm', 'sqp', 'MaxFunctionEvaluations', 200000, 'StepTolerance', 1e-15, 'MaxIterations', 1000);
-[x, fval] = fmincon(@objfun, x0, [], [], [], [], lb, ub, @state_const, options);
+x0 = [xguess(:,1);xguess(:,2);Tguess];
+lb = ones(size(x0)); ub = Inf*ones(size(x0)); 
+lb(1:N,1) = 0*lb(1:N,1); % r should always be > 0
+lb(N+1:2*N,1) = -Inf*lb(N+1:2*N,1); lb(end,1) = 0;
 
-r = x(1:N+1,1); theta = x(N+2:2*N+2,1); T = x(end,1);
-xy = get_xy([r,theta]);
-plot(xy(:,1), xy(:,2), '.-r')
+% check if inital guess satisfies constraints
+%[c, ceq] = state_const(x0, p, N, D);
+%norm(ceq)/length(ceq)
+alg = 'sqp';
 
-function [c, ceq] = state_const(x)
-    N = (length(x) - 3)/2;
-    rk = x(1:N+1, 1); thetak = x(N+2:2*N+2,1); T = x(end,1);
-    
-    [D, cheb_x] = cheb_diff(N);
-    %tspan = [0, 3];
-    %cheb_t = flip(((tspan(2)-tspan(1))/2)*cheb_x + (sum(tspan))/2);
+options = optimoptions(@fmincon,'Algorithm',alg,'Display','iter');
+options.MaxIterations = 200;
+options.MaxFunctionEvaluations = 1000000;
+x = fmincon(@(x) objfun(x, N), x0, [], [], [], [], lb, ub,@(x) state_const(x, p, N, D), options);
 
-    diffmat = [D, zeros(N+1, N+1); zeros(N+1, N+1), D];
-    xdot_cap = (2/T)*diffmat*[rk;thetak];
-    
-    fr = zeros(N+1,1); ftheta = zeros(N+1,1);
-    for i = 1:N+1
-        temp = system(0, [rk(i);thetak(i)]);
-        fr(i, 1) = temp(1,1); ftheta(i, 1) = temp(2,1);
-    end
-    xdot = [fr;ftheta];
-    
-    c = [];
-    ceq = xdot_cap - xdot;
-    %[M, index] = min(abs(cheb_t - T));
-    index = N+1;
-    ceq(end+1) = x(1,1) - x(index,1);
-    ceq(end+1) = abs(x(N+2,1) - x(N+1+index,1)) - 2*pi;
-    
-    
-end
+T = x(end,1);
+fprintf('Time period = %.2f\n',T);
 
-function ydot = system(t, y)
-    r = y(1,1); theta = y(2,1);
-    a = -3; b = 5; c = pi; d = -2; nu = -pi; omega = pi;
-    rdot = d*nu*r + a*r^3;
-    thetadot = omega + c*nu + b*r^2;
-    ydot = [rdot;thetadot];
-end
-
-function xy = get_xy(state)
-    r = state(:,1); theta = state(:,2);
-    xy = zeros(size(state));
-    for i = 1:length(r)
-      xy(i,1) = r(i)*cos(theta(i)); xy(i,2) = r(i)*sin(theta(i));
-    end
-end
-
-function f = objfun(x)
-    f = x(end)^2;
-end
+xpos = x(1:N).*cos(x(N+1:2*N));
+ypos = x(1:N).*sin(x(N+1:2*N));
+plot(xpos,ypos,'.-r');
+xlabel('x');
+ylabel('y');
+axis equal
+grid on
