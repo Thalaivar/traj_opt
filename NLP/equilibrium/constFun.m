@@ -5,8 +5,8 @@ function [c, ceq] = constFun(x, J)
     for i = 1:N
         j = 2*i - 1;
         eig_vec = [eigvec_comp(j); eigvec_comp(j+1)];
-        ceq(i) = det(J - eig_val(i)*eye(N));
-        ceq(i+N) = norm(eig_vec) - 1;
+        %ceq(i) = det(J - eig_val(i)*eye(N));
+        ceq(i) = norm(eig_vec) - 1;
     end        
     c = [];
 end
