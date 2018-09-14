@@ -1,4 +1,5 @@
-function J = get_jac(x)
+function J = get_jac(x, p)
     y1 = x(1,1); y2 = x(2,1);
-    J = [(2*y1*y2 - 4), y1^2 ; (3 - 2*y1*y2) , -1*y1^2];
+    
+    J = [p(1) - p(2)*y2, -p(2)*y1; p(3)*y2, p(3)*y1 - p(4)];
 end

@@ -1,7 +1,7 @@
-function xeq = find_equilibrium(xguess)
+function xeq = find_equilibrium(xguess, p)
 
 options = optimoptions('fminunc', 'Algorithm', 'trust-region', 'Display', 'None', 'SpecifyObjectiveGradient',true);
-[xeq, fval] = fminunc(@(x) eq_objfun(x),xguess,options);
+[xeq, fval] = fminunc(@(x) eq_objfun(x, p),xguess,options);
 end
 
 

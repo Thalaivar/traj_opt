@@ -1,6 +1,6 @@
-function ydot = sys_model(t, y)
+function ydot = sys_model(t, y, p)
     y1 = y(1,1); y2 = y(2,1);
-    y1dot = 1 + (y1^2)*y2 - 4*y1;
-    y2dot = 3*y1 - y2*(y1^2);
-    ydot = [y1dot;y2dot];
+    ydot1 = p(1)*y1 - p(2)*y1*y2;
+    ydot2 = p(3)*y1*y2 - p(4)*y2;
+    ydot = [ydot1; ydot2];
 end
