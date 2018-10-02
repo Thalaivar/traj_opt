@@ -4,8 +4,6 @@ function Ydot = aircraft_model(t, Y, u, par)
     rho = par(1); Cd0 = par(2); Cd1 = par(3); Cd2 = par(4); S = par(5); m = par(6); g = par(7);
     VR = par(8); hR = par(9);
     
-    p = 0.143; % parameter for wind model
-    
     Cd = Cd0 + Cd1*Cl + Cd2*Cl^2;
     L = 0.5*rho*S*Cl*V^2; D = 0.5*rho*S*Cd*V^2;
     Vw = wind_model(h, [VR, hR, p]);
