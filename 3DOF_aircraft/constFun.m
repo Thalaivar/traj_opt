@@ -8,9 +8,11 @@ function [c, ceq] = constFun(x, limits, model_par, N)
     % z is of the form:
     %       z = [h, x, y, hdot, xdot, ydot, hddot, xddot, yddot]
     
-    a_h = x(1:N+1,1); a_x = x(N+2:2*(N+1),1); a_y = x(2*N+3:3*(N+1),1);
-    eta_h = x(3*N+4:4*(N+1),1); eta_x = x(4*N+5:5*(N+1),1); eta_y = x(5*N+6:6*(N+1),1);
-    ph = [a_h,eta_h]; px = [a_x,eta_x]; py = [a_y,eta_y]; VR = x(end-1,1); tf = x(end,1);
+    % n1 : n_coeffs; n2 : n_phase_angles;
+    n1 = N+1; n2 = N;
+    a_h = x(1:n1,1); a_x = x(n1+1:2*n1,1); a_y = x(2*n1 + 1:3*n1,1);
+    eta_h = x(3*n1+1:3*n1+n2,1); eta_x = x((3*n1+n2+1):(3*n1+2*n2),1); eta_y = x((3*n1+2*n2+1):3*(n1+n2),1);
+    ph = [a_h,[eta_h;0]]; px = [a_x,[eta_x;0]]; py = [a_y,[eta_y;0]]; VR = x(end-1,1); tf = x(end,1);
     
     wind_par = VR;
     

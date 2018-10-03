@@ -24,6 +24,5 @@ function c = ineq_constr(z, lim, wind_par, model_par)
     c(5,1) = Tmin - T;
     c(6,1) = T - Tmax;
     c(7,1) = hmin - h + 0.5*b*sin(nu);
-    c(8,1) = hmin - h - 0.5*b*sin(nu);
-    
+    c(8,1) = hmin - h - 0.5*b*sin(nu);     
 end
