@@ -17,7 +17,7 @@ function [a, eta, tf, VR] = generate_traj(limits, model_par, N)
     x0(3*n_coeffs+n_phase_angles+1,1) = pi/2;
     x0(3*n_coeffs+2*n_phase_angles+1,1) = 0;
     % setting initial guess params for VR, tf
-    x0(end-1,1) = 12; x0(end,1) = 10;
+    x0(end-1,1) = 8.5; x0(end,1) = 5;
     lb = ones(3*(n_coeffs+n_phase_angles) + 2,1,1); ub = ones(3*(n_coeffs+n_phase_angles) + 2,1,1);
     % coeffs of trajectory
     lb(1:n_coeffs*3,1) = -500*lb(1:n_coeffs*3,1); ub(1:n_coeffs*3,1) = 500*ub(1:n_coeffs*3,1);
@@ -29,9 +29,7 @@ function [a, eta, tf, VR] = generate_traj(limits, model_par, N)
     % tf
     lb(end,1) = 0; ub(end,1) = 200;
     
-    [c, ceq] = constFun(x0, limits, model_par, N);
-    
-    options = optimoptions('fmincon', 'Display', 'Iter', 'Algorithm', 'sqp', 'MaxFunctionEvaluations', 10000, 'StepTolerance', 1e-10, 'ConstraintTolerance', 1);
+    options = optimoptions('fmincon', 'Display', 'Iter', 'Algorithm', 'sqp', 'MaxFunctionEvaluations', 20000);
     [x, fval] = fmincon(@(x) objfun(x), x0, [], [], [], [], lb, ub, @(x) constFun(x, limits, model_par, N), options);
     
     n1 = n_coeffs; n2 = n_phase_angles;

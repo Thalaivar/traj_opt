@@ -16,13 +16,14 @@ function [c, ceq] = constFun(x, limits, model_par, N)
     
     wind_par = VR;
     
-    M = 5*N;
+    M = 6*N;
     c = zeros(8*M,1);
-    for i = 1:8:M+1
+    for i = 1:M+1
+        j = (i-1)*8 + 1;
         t = (i-1)*tf/M;
         [h, x, y, hdot, xdot, ydot, hddot, xddot, yddot] = get_traj(t, ph, px, py, tf);
         z = [h, x, y, hdot, xdot, ydot, hddot, xddot, yddot];
-        c(i:i+7) = ineq_constr(z, limits, wind_par, model_par); 
+        c(j:j+7) = ineq_constr(z, limits, wind_par, model_par);
     end
     
     [h0, x0, y0, hdot0, xdot0, ydot0, hddot0, xddot0, yddot0] = get_traj(0, ph, px, py, tf);
