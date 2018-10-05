@@ -3,13 +3,13 @@ function c = ineq_constr(z, lim, wind_par, model_par)
     %       [h, x, y, hdot, xdot, ydot, hddot, xddot, yddot] = z;
     
     % limits should be of the form:
-    %       limits = [Clmax, Vmax, nu_min, nu_max, Tmin, Tmax, hmin]
+    %       limits = [Clmax, Vmax, nu_min, nu_max, CTmin, CTmax, hmin]
     
     % wind_par should be of the form:
     %       wind_par = [VR, hR]
     
     % model_par should be of the form:
-    %       model_par = [m, rho, S, g, b, Cd0, Cd1, Cd2]
+    %       model_par = [m, rho, S, g, Cd0, Cd1, Cd2, b]
     
     Clmax = lim(1); Vmax = lim(2); nu_min = lim(3); nu_max = lim(4);
     CTmin = lim(6); CTmax = lim(5); hmin = lim(7);
@@ -25,5 +25,5 @@ function c = ineq_constr(z, lim, wind_par, model_par)
     c(6,1) = CT - CTmax;
     c(7,1) = hmin - h + 0.5*b*sin(nu);
     c(8,1) = hmin - h - 0.5*b*sin(nu);
-    
+        
 end
