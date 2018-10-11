@@ -1,4 +1,4 @@
-function [a, eta, tf, VR, sol] = generate_traj(limits, model_par, N, x0)
+function [a, eta, tf, VR, sol] = generate_traj_fourier(limits, model_par, N, x0)
     % limits is of the form:
     %       limits = [Clmax, Vmax, nu_min, nu_max, CTmin, CTmax, hmin]    
     
@@ -29,7 +29,7 @@ function [a, eta, tf, VR, sol] = generate_traj(limits, model_par, N, x0)
         wind_model_ver = 2;
     end
     model_par(end+1) = wind_model_ver;
-    lb = ones(3*(n_coeffs+n_phase_angles) + 2,1,1); ub = ones(3*(n_coeffs+n_phase_angles) + 2,1,1);
+    lb = ones(3*(n_coeffs+n_phase_angles) + 2,1); ub = ones(3*(n_coeffs+n_phase_angles) + 2,1);
     % coeffs of trajectory
     lb(1:n_coeffs*3,1) = -500*lb(1:n_coeffs*3,1); ub(1:n_coeffs*3,1) = 500*ub(1:n_coeffs*3,1);
     % phase angles
@@ -40,9 +40,10 @@ function [a, eta, tf, VR, sol] = generate_traj(limits, model_par, N, x0)
     % tf
     lb(end,1) = 0; ub(end,1) = 200;
     
-    options = optimoptions('fmincon', 'Display', 'Iter', 'Algorithm', 'sqp', 'MaxFunctionEvaluations', 5000);
+    options = optimoptions('fmincon', 'Display', 'Iter', 'Algorithm', 'sqp', 'MaxFunctionEvaluations', 20000, 'StepTolerance', 1e-15);
     x = fmincon(@(x) objfun(x), x0, [], [], [], [], lb, ub, @(x) constFun(x, limits, model_par, N), options);
     
+    %[c, ceq] = constFun(x, limits, model_par, N);
     % if we are running fror first time, return dec vec for use as initial
     % guess in next run
     if isempty(tempvar)

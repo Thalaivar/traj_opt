@@ -6,15 +6,15 @@ function c = ineq_constr(z, lim, wind_par, model_par)
     %       limits = [Clmax, Vmax, nu_min, nu_max, CTmin, CTmax, hmin]
     
     % wind_par should be of the form:
-    %       wind_par = [VR, hR]
+    %       wind_par = [VR, choice]
     
     % model_par should be of the form:
-    %       model_par = [m, rho, S, g, Cd0, Cd1, Cd2, b]
+    %       model_par = [m, rho, S, g, Cd0, Cd1, Cd2, b, wind_model_param]
     
     Clmax = lim(1); Vmax = lim(2); nu_min = lim(3); nu_max = lim(4);
-    CTmin = lim(6); CTmax = lim(5); hmin = lim(7);
+    CTmin = lim(5); CTmax = lim(6); hmin = lim(7);
     
-    b = model_par(end); % wingspan
+    b = model_par(end-1); % wingspan
     h = z(1);
     [V, ~, ~, nu, Cl, ~, CT] = DF_aircraft_model(z, wind_par, model_par);
     c(1,1) = Cl - Clmax;

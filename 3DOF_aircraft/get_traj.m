@@ -1,3 +1,4 @@
+
 function [h, x, y, hdot, xdot, ydot, hddot, xddot, yddot] = get_traj(t, ph, px, py, tf)
     
     a_h = ph(:,1); eta_h = ph(1:end-1,2);
