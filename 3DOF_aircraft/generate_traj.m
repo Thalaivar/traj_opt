@@ -1,4 +1,4 @@
-function [a, eta, tf, VR, sol] = generate_traj_fourier(limits, model_par, N, x0)
+function [a, eta, tf, VR, sol] = generate_traj(limits, model_par, N, x0)
     % limits is of the form:
     %       limits = [Clmax, Vmax, nu_min, nu_max, CTmin, CTmax, hmin]    
     
