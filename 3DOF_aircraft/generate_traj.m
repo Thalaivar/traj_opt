@@ -40,7 +40,7 @@ function [a, eta, tf, VR, sol] = generate_traj(limits, model_par, N, x0)
     % tf
     lb(end,1) = 0; ub(end,1) = 200;
     
-    options = optimoptions('fmincon', 'Display', 'Iter', 'Algorithm', 'sqp', 'MaxFunctionEvaluations', 20000, 'StepTolerance', 1e-15);
+    options = optimoptions('fmincon', 'Display', 'Iter', 'Algorithm', 'interior-point', 'MaxFunctionEvaluations', 200000, 'StepTolerance', 1e-10, 'MaxIterations', 10000);
     x = fmincon(@(x) objfun(x), x0, [], [], [], [], lb, ub, @(x) constFun(x, limits, model_par, N), options);
     
     %[c, ceq] = constFun(x, limits, model_par, N);
@@ -49,7 +49,7 @@ function [a, eta, tf, VR, sol] = generate_traj(limits, model_par, N, x0)
     if isempty(tempvar)
         sol = x;
     else
-        sol = [];
+        sol = x;
     end
     
     n1 = n_coeffs; n2 = n_phase_angles;

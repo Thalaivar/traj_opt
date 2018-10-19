@@ -1,3 +1,4 @@
+
 function [c, ceq] = constFun(X, limits, model_par, N)
     % limits is of the form:
     %       limits = [Clmax, Vmax, nu_min, nu_max, Tmin, Tmax, hmin]    
@@ -36,12 +37,9 @@ function [c, ceq] = constFun(X, limits, model_par, N)
     ceq(1,1) = h0 - hf;
     ceq(end+1,1) = x0 - xf;
     ceq(end+1,1) = y0 - yf;
-    ceq(end+1,1) = psi_f - psi_0 - 2*pi;
+    %ceq(end+1,1) = psi_f - psi_0;
     %ceq(2,1) = z0(2);
     %ceq(3,1) = z0(3);
-    
-    %ceq(end+1,1) = psi_f - psi + 2*pi;
-   % ceq(end+1,1) = zf(2);
-    %ceq(end+1,1) = zf(3);
+   
 end
 

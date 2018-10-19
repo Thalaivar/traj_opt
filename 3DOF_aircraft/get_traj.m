@@ -1,6 +1,6 @@
 
 function [h, x, y, hdot, xdot, ydot, hddot, xddot, yddot] = get_traj(t, ph, px, py, tf)
-    
+    % p_$ is of the form [a_$, [eta_$;0]]
     a_h = ph(:,1); eta_h = ph(1:end-1,2);
     a_x = px(:,1); eta_x = px(1:end-1,2);
     a_y = py(:,1); eta_y = py(1:end-1,2);
