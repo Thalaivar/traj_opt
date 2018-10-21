@@ -1,59 +1,37 @@
-function [a, eta, tf, VR, sol] = generate_traj(limits, model_par, N, x0)
-    % limits is of the form:
-    %       limits = [Clmax, Vmax, nu_min, nu_max, CTmin, CTmax, hmin]    
-    
-    % model_par is of the form:
-    %       model_par = [m, rho, S, g, Cd0, Cd1, Cd2, b, wind_model] 
-    
-    % dec vec = [ah_0, ..., ah_N, ax_0, ...,ax_N, ay_0, ..., ay_N, .., VR, tf]
-    n_coeffs = N+1; n_phase_angles = N;
-    tempvar = x0;
+function [coeffs, VR, tf, sol] = generate_traj(aircraft, N, x0)
+   
+    % dec vec = [ax0, ... , ax1_N,ax2_1, ... , ax2_N, ay0, ... , ay2_N, az0, ... ,az2_N, VR, tf]
+    % a$1_i corresponds to teh coefficient of the i'th cosine harmonic
+    % a$2_i corresponds to teh coefficient of the i'th sine harmonic
+    xguess = x0;
     
     % if x0 was empty, it means we are running for first time
-    if isempty(tempvar)
-        % use linear model
-        wind_model_ver = 1;
-        x0 = zeros(3*(n_coeffs+n_phase_angles) + 2,1);
-        % setting initial guess params for coeffs
-        x0(1,1) = 20; x0(2,1) = -20; 
-        x0(n_coeffs+1,1) = -20; x0(n_coeffs+2,1) = 20; 
-        x0(2*n_coeffs+1,1) = 0; x0(2*n_coeffs+2,1) = -20*(2^0.5);
-        % setting initial guess params for phase angles
-        x0(3*n_coeffs+1,1) = pi/2;
-        x0(3*n_coeffs+n_phase_angles+1,1) = pi/2;
-        x0(3*n_coeffs+2*n_phase_angles+1,1) = 0;
-        % setting initial guess params for VR, tf
-        x0(end-1,1) = 10; x0(end,1) = 10;
+    if isempty(xguess)
+        % use linear wind model
+        aircraft.p = 1;
+        VR_0 = 0.1; tf_0 = 10;
+        xguess = get_init_guess('circle', N, tf_0, VR_0);
     else
         % use exponential wind model
-        wind_model_ver = 2;
+        aircraft.p = 0.25;
     end
-    model_par(end+1) = wind_model_ver;
-    lb = ones(3*(n_coeffs+n_phase_angles) + 2,1); ub = ones(3*(n_coeffs+n_phase_angles) + 2,1);
-    % coeffs of trajectory
-    lb(1:n_coeffs*3,1) = -500*lb(1:n_coeffs*3,1); ub(1:n_coeffs*3,1) = 500*ub(1:n_coeffs*3,1);
-    % phase angles
-    lb(n_coeffs*3+1:3*(n_coeffs+n_phase_angles),1) = 0*lb(n_coeffs*3+1:3*(n_coeffs+n_phase_angles),1); 
-    ub(n_coeffs*3+1:3*(n_coeffs+n_phase_angles),1) = 2*pi*ub(n_coeffs*3+1:3*(n_coeffs+n_phase_angles),1);
-    % VR
+    
+    [c , ceq] = constFun(xguess, aircraft, N);
+    
+    lb = ones(3*(2*N+1)+2,1); ub = ones(3*(2*N+1)+2,1);
+    % bounds on coefficients
+    lb(1:3*(2*N+1),1) = -500*lb(1:3*(2*N+1),1);
+    ub(1:3*(2*N+1),1) = 500*ub(1:3*(2*N+1),1);
+    % bounds on VR and tf
     lb(end-1,1) = 0; ub(end-1,1) = 150;
-    % tf
     lb(end,1) = 0; ub(end,1) = 200;
     
-    options = optimoptions('fmincon', 'Display', 'Iter', 'Algorithm', 'interior-point', 'MaxFunctionEvaluations', 200000, 'StepTolerance', 1e-10, 'MaxIterations', 10000);
-    x = fmincon(@(x) objfun(x), x0, [], [], [], [], lb, ub, @(x) constFun(x, limits, model_par, N), options);
+    %[c, ceq] = constFun(xguess, aircraft, N);
     
-    %[c, ceq] = constFun(x, limits, model_par, N);
-    % if we are running fror first time, return dec vec for use as initial
-    % guess in next run
-    if isempty(tempvar)
-        sol = x;
-    else
-        sol = x;
-    end
+    options = optimoptions('fmincon', 'Display', 'Iter', 'Algorithm', 'interior-point', 'MaxFunctionEvaluations', 2000000, 'StepTolerance', 1e-10, 'MaxIterations', 10000);
+    sol = fmincon(@(x) objfun(x), xguess, [], [], [], [], lb, ub, @(x) constFun(x, aircraft, N), options);
     
-    n1 = n_coeffs; n2 = n_phase_angles;
-    a = [x(1:n1,1),x(n1+1:2*n1,1),x(2*n1+1:3*n1,1)];
-    eta = [x(3*n1+1:3*n1+n2,1), x(3*n1+n2+1:3*n1+2*n2,1), x(3*n1+2*n2+1:3*(n1+n2),1)];    
-    VR = x(end-1,1); tf = x(end,1);
+    n = (2*N+1);
+    coeffs = [sol(1:n,1), sol(n+1:2*n,1), sol(2*n+1:3*n,1)];
+    VR = sol(end-1,1); tf = sol(end,1);
 end
