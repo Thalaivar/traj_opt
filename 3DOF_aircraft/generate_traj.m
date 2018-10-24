@@ -1,19 +1,15 @@
-function [coeffs, VR, tf, sol] = generate_traj(aircraft, N, x0)
+function [coeffs, VR, tf, sol] = generate_traj(aircraft, N, x0, p)
    
     % dec vec = [ax0, ... , ax1_N,ax2_1, ... , ax2_N, ay0, ... , ay2_N, az0, ... ,az2_N, VR, tf]
     % a$1_i corresponds to teh coefficient of the i'th cosine harmonic
     % a$2_i corresponds to teh coefficient of the i'th sine harmonic
     xguess = x0;
+    aircraft.p = p;
     
     % if x0 was empty, it means we are running for first time
     if isempty(xguess)
         % use linear wind model
-        aircraft.p = 1;
-        VR_0 = 0.1; tf_0 = 10;
-        xguess = get_init_guess('circle', N, tf_0, VR_0);
-    else
-        % use exponential wind model
-        aircraft.p = 0.25;
+        xguess = get_init_guess('a', N);
     end
     
     [c , ceq] = constFun(xguess, aircraft, N);
@@ -28,7 +24,7 @@ function [coeffs, VR, tf, sol] = generate_traj(aircraft, N, x0)
     
     %[c, ceq] = constFun(xguess, aircraft, N);
     
-    options = optimoptions('fmincon', 'Display', 'Iter', 'Algorithm', 'interior-point', 'MaxFunctionEvaluations', 2000000, 'StepTolerance', 1e-10, 'MaxIterations', 10000);
+    options = optimoptions('fmincon', 'Display', 'Iter', 'Algorithm', 'sqp', 'MaxFunctionEvaluations', 2000000, 'StepTolerance', 1e-10, 'MaxIterations', 10000);
     sol = fmincon(@(x) objfun(x), xguess, [], [], [], [], lb, ub, @(x) constFun(x, aircraft, N), options);
     
     n = (2*N+1);

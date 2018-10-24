@@ -8,10 +8,10 @@ function [c, ceq, dc, dceq] = constFun(X, aircraft, N)
     coeffs = [coeffs_x,coeffs_y, coeffs_z];
     VR = X(end-1,1); tf = X(end,1);
     
-    M = 7*N; c = zeros(13*(M+1),1);
+    M = 7*N; c = zeros(12*(M+1),1);
     t = linspace(0, tf, M);
     for i = 1:M
-        j = (i-1)*13 + 1;
+        j = (i-1)*12 + 1;
         % get flat outputs at time t
         sigma = aircraft.get_traj(t(i), tf, coeffs, N); 
         z = sigma(3); 
@@ -35,20 +35,21 @@ function [c, ceq, dc, dceq] = constFun(X, aircraft, N)
         % hmin constraints
         c(j+8,1)  = z + 0.5*aircraft.b*sin(nu);
         c(j+9,1) = z - 0.5*aircraft.b*sin(nu);
-        c(j+10,1) = -z - 100;
+        %c(j+10,1) = -z - 100;
         % gamma constraints
-        c(j+11,1) = aircraft.limits(9) - aircraft.x(2);
-        c(j+12,1) = aircraft.x(2) - aircraft.limits(10);
+        c(j+10,1) = aircraft.limits(9) - aircraft.x(2);
+        c(j+11,1) = aircraft.x(2) - aircraft.limits(10);
         
     end
     
+    ceq = [];
     % equality constraints to ensure periodicity
-    sigma_0 = aircraft.get_traj(0, tf, coeffs, N);
-    sigma_f = aircraft.get_traj(tf, tf, coeffs, N);
-    ceq(1,1) = sigma_0(1) - sigma_f(1);
-    ceq(2,1) = sigma_0(2) - sigma_f(2);
-    ceq(3,1) = sigma_0(3) - sigma_f(3);
-    
+%       sigma_0 = aircraft.get_traj(0, tf, coeffs, N);
+%       sigma_f = aircraft.get_traj(tf, tf, coeffs, N);
+%       ceq(1,1) = sigma_0(1) - sigma_f(1);
+%       ceq(2,1) = sigma_0(2) - sigma_f(2);
+%       ceq(3,1) = sigma_0(3) - sigma_f(3);
+%      
     if nargout > 2 % gradient of the constraints
       dc = [];
       dceq = [];

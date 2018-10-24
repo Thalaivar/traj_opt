@@ -2,7 +2,7 @@ N = 8;
 
 aircraft = aircraft();
 aircraft.limits
-[coeffs, VR, tf, sol] = generate_traj(aircraft, N, []);
+[coeffs, VR, tf, sol] = generate_traj(aircraft, N, [], 1);
 plot_traj(coeffs, tf, N);
 %[coeffs, VR, tf, xguess] = generate_traj(aircraft, N, sol);
 

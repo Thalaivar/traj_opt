@@ -3,14 +3,14 @@ classdef aircraft
         m = 4.5;
         rho = 1.225;
         S = 0.473;
-        g = 9.8;
+        g = 9.806;
         Cd0 = 0.0173;
         Cd1 = -0.0337;
         Cd2 = 0.0517;
         b = 3;
         p = 1;
         % limits is of the form [Clmin, Clmax, Vmin, Vmax, nu_min, nu_max, CTmin, CTmax, gamma_min, gamma_max]
-        limits = [-0.2, 1.1, 10, 26, -pi/3, pi/3, -1e-4, 1e-4, -pi/4, pi/4]
+        limits = [-0.2, 1.1, 10, 80, -pi/3, pi/3, -1e-4, 1e-4, -pi/4, pi/4]
         x
         u
     end
@@ -27,7 +27,7 @@ classdef aircraft
         
         % to get the non flat states
         function obj = get_xu(obj, sigma, VR)
-            z = sigma(1);
+            z = sigma(3);
             zdot = sigma(6); xdot = sigma(4); ydot = sigma(5); 
             zddot = sigma(9); xddot = sigma(7); yddot = sigma(8);
             
@@ -39,9 +39,9 @@ classdef aircraft
             % non flat outputs
             V = ((xdot - Wx)^2 + ydot^2 + zdot^2)^0.5;
             Vdot = (xdot*xddot - xdot*zdot*Wxz - xddot*Wx + Wx*Wxz*zdot + ydot*yddot + zdot*zddot)/V;
-            gamma = asin(-zdot/V);
+            gamma = -asin(zdot/V);
             gammadot = (zdot*Vdot - V*zddot)/(V*(V^2 - zdot^2)^0.5);
-            chi = atan(ydot/(xdot - Wx));
+            chi = atan2(ydot,(xdot - Wx));
             chidot = (xdot*yddot - yddot*Wx - ydot*xddot + ydot*zdot*Wxz)/(ydot^2 + xdot^2 + Wx^2 - 2*xdot*Wx);
             nu = atan((V*cos(gamma)*chidot - Wxz*zdot*sin(chi))/(V*gammadot + obj.g*cos(gamma) - Wxz*cos(chi)*sin(gamma)*zdot));
             Cl = (obj.m*V*cos(gamma)*chidot - obj.m*Wxz*zdot*sin(chi))/(0.5*obj.rho*obj.S*sin(nu)*V^2);
