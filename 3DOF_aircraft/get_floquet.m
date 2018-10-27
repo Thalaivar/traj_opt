@@ -1,39 +1,30 @@
-function [a, eta, tf, VR, eig_vec, eig_val, x] = get_floquet(limits, model_par, xguess, N, M)
-    % model_par is of the form:
-    %       model_par = [m, rho, S, g,Cd0, Cd1, Cd2, b]
+function [eig_vec, eig_val, sol] = get_floquet(aircraft, N, M, xguess)
     
-     % limits is of the form:
-    %       limits = [Clmax, Vmax, nu_min, nu_max, Tmin, Tmax, hmin]    
+    % dimension of eigenvec
+    n = 6;  
+    % dec vec is [re(u1), re(u2), .... , re(uM), im(u1), ... , re(lam), im(lam)]
+    if isempty(xguess)
+        xguess = [(1/sqrt(12))*ones(2*M*n,1);0;0];
+    end
     
+    lb = ones(2*M*n+2,1);
+    ub = ones(2*M*n+2,1);
     
-    % n1 : n_coeffs; n2 : n_phase_angles; n3 : n_eigvec_comp;
-    n1 = N+1; n2 = N;
-    n3 = 6*M;
-    
-    
-    x0 = [xguess;ones(n3,1);0];
-    lb = ones(3*(n1+n2)+2+n3+1,1);
-    ub = ones(3*(n1+n2)+2+n3+1,1);
-    % bounds for coeffs
-    lb(1:3*n1,1) = -500*lb(1:3*n1,1); ub(1:3*n1,1) = 500*ub(1:3*n1,1);
-    % bounds for phase angles
-    lb(3*n1+1:3*(n1+n2),1) = 0*lb(3*n1+1:3*(n1+n2),1); 
-    ub(3*n1+1:3*(n1+n2),1) = 2*pi*ub(3*n1+1:3*(n1+n2),1); 
-    % bounds for VR, tf  ]                                                
-    lb(3*(n1+n2)+1,1) = 0*lb(3*(n1+n2)+1,1); ub(3*(n1+n2)+1,1) = 100*ub(3*(n1+n2)+1,1);
-    lb(3*(n1+n2)+2,1) = 0*lb(3*(n1+n2)+2,1); ub(3*(n1+n2)+2,1) = 200*ub(3*(n1+n2)+2,1);
     % bounds for eig_vec components
-    lb(3*(n1+n2)+2+1:3*(n1+n2)+2+n3,1) = -100*lb(3*(n1+n2)+2+1:3*(n1+n2)+2+n3,1); 
-    ub(3*(n1+n2)+2+1:3*(n1+n2)+2+n3,1) = 100*ub(3*(n1+n2)+2+1:3*(n1+n2)+2+n3,1);
+    lb(1:2*M*n,1) = -100*lb(1:2*M*n,1); 
+    ub(1:2*M*n,1) = 100*ub(1:2*M*n,1);
     % bounds for eigenvalue
-    lb(end,1) = -10; ub(end,1) = 10;
+    lb(end-1,1) = -10; ub(end-1,1) = 10;
+    lb(end,1) = -100; ub(end-1,1) = 100;
     
-    options = optimoptions('fmincon', 'Display', 'Iter', 'Algorithm', 'sqp', 'MaxFunctionEvaluations', 1000000, 'StepTolerance', 1e-10, 'MaxIterations', 10000);
-    x = fmincon(@(x) objfun2(x,N), x0, [], [], [], [], lb, ub, @(x) constFun_floq(x, limits, model_par, N, M), options);
+    options = optimoptions('fmincon', 'Display', 'Iter', 'Algorithm', 'sqp');
+    sol = fmincon(@(x) objfun(x, N,2), xguess, [], [], [], [], lb, ub, @(x) constFun(x, aircraft, N, M, true), options);
     
-    a = [x(1:n1,1),x(n1+1:2*n1,1),x(2*n1+1:3*n1,1)];
-    eta = [x(3*n1+1:3*n1+n2,1), x(3*n1+n2+1:3*n1+2*n2,1), x(3*n1+2*n2+1:3*(n1+n2),1)];    
-    VR = x(3*(n1+n2)+1,1); tf = x(3*(n1+n2)+2,1);
-    eig_vec = x(3*(n1+n2)+2+1:3*(n1+n2)+2+n3,1);
-    eig_val = x(end,1);
+    eigvec_comp_real = sol(1:M*n,1); eigvec_comp_img = sol(M*n+1:2*M*n,1);
+    eig_val = [sol(end-1,1), sol(end,1)];
+    eig_vec = zeros(6,M); 
+       for i = 1:M
+           j = (i-1)*6 + 1;
+           eig_vec(:,i) = complex(eigvec_comp_real(j:j+5,1), eigvec_comp_img(j:j+5,1));
+       end
 end
