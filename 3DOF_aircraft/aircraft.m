@@ -58,6 +58,29 @@ classdef aircraft
             obj.x = [V, gamma, chi]; obj.u = [Cl, nu, CT];
         end
         
+        function ydot = model(obj, X, U, VR)
+            V = X(1,1); gamma = X(3,1); chi = X(2,1);
+            z = X(6,1); 
+            Cl = U(1,1); nu = U(2,1); CT = U(3,1); 
+            
+            Cd = obj.Cd0 + obj.Cd1*Cl + obj.Cd2*Cl^2;
+            D = 0.5*obj.rho*obj.S*V^2*Cd;
+            L = 0.5*obj.rho*obj.S*V^2*Cl;
+            T = 0.5*obj.rho*obj.S*V^2*CT;
+            
+             % wind model
+            p_exp = obj.p;
+            Wx = VR*(-z)^p_exp;
+            Wxz = (p_exp*VR)*((-z)^p_exp)/z;
+            
+            zdot = -V*sin(gamma); ydot = V*sin(chi)*cos(gamma); xdot = V*cos(chi)*cos(gamma) + Wx;
+            Vdot = (-D/obj.m) - obj.g*sin(gamma) - Wxz*zdot*cos(chi)*cos(gamma) + (T/obj.m);
+            chidot = (L*sin(nu)/(obj.m*V*cos(gamma))) + Wxz*zdot*sin(chi)/(V*cos(gamma));
+            gammadot = (L*cos(nu)/(obj.m*V)) - obj.g*cos(gamma)/V + Wxz*zdot*cos(chi)*sin(gamma)/V;
+            
+            ydot = [Vdot; chidot; gammadot; xdot; ydot; zdot];
+        end
+        
         function A = get_jac(obj, t, tf, VR, coeffs, N)
             
             sigma = obj.get_traj(t, tf, coeffs, N);

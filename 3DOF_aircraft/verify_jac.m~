@@ -1,0 +1,22 @@
+clear all
+load('/Users/dhruvlaad/ranjit_mohan/traj_opt/3DOF_aircraft/solutions/lin_O_shaped.mat')
+
+J_cap = zeros(6);
+t = linspace(0, tf, 1000);
+aircarft = aircraft();
+aircraft.traj_params.tf = tf; aircraft.traj_params.VR = VR;
+aircraft.traj_params.coeffs = coeffs;
+error = zeros(length(t));
+for k = 1:length(t)
+    sigma = aircraft.get_traj(t(k), tf, coeffs, N);
+    aircraft = aircraft.get_xu(sigma, VR);
+    for i = 1:6
+        x0 = [aircraft.x(1);aircraft.x(3);aircraft.x(2);sigma(1);sigma(2);sigma(3)];
+        u = aircraft.u';
+        f1 = aircraft.model(x0+,u)
+    end
+end
+    
+    A = aircraft.get_jac(t(k), tf, VR, coeffs, N);
+    error(k) = norm(J_cap - A);
+    
