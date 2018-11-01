@@ -21,4 +21,4 @@ for k = 1:length(t)-1
     A = aircraft.get_jac(t(k), tf, VR, coeffs, N);
     error(k) = norm(J_cap - A)/norm(A);
 end
-    
+

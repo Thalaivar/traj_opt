@@ -1,0 +1,3 @@
+27/12
+Implentation of Differential Flatness based DS trajectory optimization
+FS approximation is used for the flat outputs

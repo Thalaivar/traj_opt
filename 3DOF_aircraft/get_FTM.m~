@@ -18,8 +18,8 @@ H2 = expm((aircraft.get_jac(t(1), tf, VR, coeffs, N))*(t(2)-t(1)));
 for i = 2:length(t)-1
     %temp2 = aircraft.get_jac(t(i), tf, VR, coeffs, N);
     %temp1 = aircraft.get_jac(t(i-1), tf, VR, coeffs, N);
-    Jk = aircraft.get_jac(t(i), tf, VR, coeffs, N);%(temp2 + temp1)/2;
-    H2 = H2*expm(Jk*(t(i+1)-t(i)));
+    Jk = aircraft.get_jac(t(i), tf, VR, coef%(temp2 + temp1)/2;
+    H2 = H2*expm(Jk*(t(i)-t(i-1)));
 end
 
 

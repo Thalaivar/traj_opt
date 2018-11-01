@@ -65,7 +65,7 @@ function [c, ceq, dc, dceq] = constFun(X, aircraft, N, M, floq)
        % matrix with colums as time series of each component
        eigvec_comp_real = alpha'; eigvec_comp_img = beta';
         
-       ceq = zeros(6*M+M,1);
+       ceq = zeros(12*M+M,1);
        % cheb diff matrix for 6 components of eigvector
        [D, cheb_x] = cheb_diff(M-1);
        diffmat = [D       ,zeros(M),zeros(M),zeros(M),zeros(M),zeros(M);
@@ -107,7 +107,7 @@ function [c, ceq, dc, dceq] = constFun(X, aircraft, N, M, floq)
            alphadot(j:j+M-1,1) = udot_real_actual(:,i);
            betadot(j:j+M-1,1) = udot_img_actual(:,i);
        end
-       ceq(1:6*M,1) = alphadot_cap -alphadot;
+       ceq(1:6*M,1) = alphadot_cap - alphadot;
        ceq(6*M+1:12*M,1) = betadot_cap - betadot;
        
        % norm of eigenvectors constrained to be = 1
@@ -116,7 +116,6 @@ function [c, ceq, dc, dceq] = constFun(X, aircraft, N, M, floq)
            ceq(12*M+i,1) = norm(eigvec(:,i)) - 1;
        end
     end
-    
     if nargout > 2 % gradient of the constraints
       dc = [];
       dceq = [];
