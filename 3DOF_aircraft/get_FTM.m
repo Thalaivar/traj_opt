@@ -5,8 +5,8 @@ aircraft = aircraft();
 aircraft.traj_params.tf = tf; aircraft.traj_params.VR = VR;
 aircraft.traj_params.coeffs = coeffs;
 
-y_0 = eye(6); tspan = [0, tf]; y_T = zeros(6,6);
-for i = 1:6
+y_0 = eye(3); tspan = [0, tf]; y_T = zeros(3,3);
+for i = 1:3
     [~,y] = ode45(@(t,y) model(t, y, aircraft, N), tspan, y_0(:,i));
     y_T(:,i) = y(end,:)';
 end

@@ -101,27 +101,24 @@ classdef aircraft
             % constructing the Jacobian
             f11 = (obj.rho*obj.S*V*Cd/obj.m) - (obj.rho*obj.S*V*CT/obj.m);
             f12 = Wxz*zdot*sin(chi)*cos(gamma); f13 = -obj.g*cos(gamma) + Wxz*zdot*cos(chi)*sin(gamma);
-            f14 = 0; f15 = 0; f16 = 0;
+            %f14 = 0; f15 = 0; f16 = 0;
             f21 = (sin(nu)/(obj.m*cos(gamma)))*(0.5*obj.rho*obj.S*Cl) - (Wxz*zdot*sin(chi)/cos(gamma))*(1/V^2);
             f22 = (Wxz*zdot/(V*cos(gamma)))*cos(chi);
             f23 = (L*sin(nu)/(obj.m*V))*(tan(gamma)*sec(gamma)) + (Wxz*zdot*sin(chi)/V)*(tan(gamma)*sec(gamma));
-            f24 = 0; f25 = 0; f26 = 0;
+            %f24 = 0; f25 = 0; f26 = 0;
             f31 = (cos(nu)/obj.m)*(0.5*obj.rho*obj.S*Cl) + (obj.g*cos(gamma)/V^2) - (Wxz*zdot*cos(chi)*sin(gamma)/V^2);
             f32 = -Wxz*zdot*sin(chi)*cos(gamma)/V;
             f33 = (obj.g*sin(gamma) + Wxz*zdot*cos(gamma)*cos(chi))/V;
-            f34 = 0; f35 = 0; f36 = 0;
-            f41 = cos(chi)*cos(gamma); f42 = -V*cos(gamma)*sin(chi); f43 = -V*cos(chi)*sin(gamma); f44 = 0; f45 = 0; f46 = Wxz;
-            f51 = sin(chi)*cos(gamma); f52 = V*cos(chi)*cos(gamma); f53 = -V*sin(gamma)*sin(chi);
-            f54 = 0; f55 = 0; f56 = 0;
-            f61 = -sin(gamma); f62 = 0; f63 = -V*cos(gamma);
-            f64 = 0; f65 = 0; f66 = 0;
+            %f34 = 0; f35 = 0; f36 = 0;
+%             f41 = cos(chi)*cos(gamma); f42 = -V*cos(gamma)*sin(chi); f43 = -V*cos(chi)*sin(gamma); f44 = 0; f45 = 0; f46 = Wxz;
+%             f51 = sin(chi)*cos(gamma); f52 = V*cos(chi)*cos(gamma); f53 = -V*sin(gamma)*sin(chi);
+%             f54 = 0; f55 = 0; f56 = 0;
+%             f61 = -sin(gamma); f62 = 0; f63 = -V*cos(gamma);
+%             f64 = 0; f65 = 0; f66 = 0;
             
-            A = [f11, f12, f13, f14, f15, f16;
-                f21, f22, f23, f24, f25, f26;
-                f31, f32, f33, f34, f35, f36;
-                f41, f42, f43, f44, f45, f46;
-                f51, f52, f53, f54, f55, f56;
-                f61, f62, f63, f64, f65, f66];
+            A = [f11, f12, f13;
+                 f21, f22, f23;
+                 f31, f32, f33];
          end
     end
     
