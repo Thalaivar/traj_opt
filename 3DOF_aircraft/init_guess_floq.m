@@ -1,23 +1,23 @@
 load('/Users/dhruvlaad/ranjit_mohan/traj_opt/3DOF_aircraft/solutions/lin_O_shaped.mat')
 
-aircraft = aircraft();
-aircraft.traj_params.tf = tf; aircraft.traj_params.VR = VR;
-aircraft.traj_params.coeffs = coeffs;
+get_FTM
+M = 50;
 
 [~, cheb_x] = cheb_diff(M-1);
 cheb_t = 0.5*tf*(1 - cheb_x);
-params = [eigval(1), eigval(2), N];
 
-y0 = (1/sqrt(6))*ones(6,1);
+[V,D] = eig(H2);
+eigval = (1/tf)*log(D(3,3));
+params = [real(eigval), imag(eigval), N];
+y0 = [real(V(:,1));imag(V(:,1))];
 tspan = cheb_t;
 
 [t, y] = ode45(@(t,y) model(t, y, params, aircraft), tspan, y0);
 
 init_guess = zeros(6*M,1);
-for i = 1:M
-    j = (i-1)*3 + 1;
-    init_guess(j:j+2,1) = y(i,1:3);
-    init_guess(3*M+j:3*M+j+2,1) = y(i,4:6);
+for i = 1:6
+    j = (i-1)*M + 1;
+    init_guess(j:j+M-1,1) = y(:,i);
 end
 
 function ydot = model(t, y, params, aircraft)

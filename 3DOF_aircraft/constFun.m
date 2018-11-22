@@ -49,69 +49,70 @@ function [c, ceq, dc, dceq] = constFun(X, aircraft, N, M, floq)
     else      
        coeffs = aircraft.traj_params.coeffs;
        VR = aircraft.traj_params.VR; tf = aircraft.traj_params.tf;
-       eigvec_comp = [X(1:3*M,1), X(3*M+1:2*3*M,1)]; eigval = complex(X(end-1,1), X(end,1));
-       
-       c = [];
-
-       % alpha : vector made up of real part of eigvec
-       % beta  : vector made up of img part of eigvec
-       % generate time series of components of eigenvectors at diff time points.
-       alpha = zeros(3,M); beta = zeros(3,M);
-       for i = 1:M
-           j = (i-1)*3 + 1;
-           alpha(:,i) = eigvec_comp(j:j+2,1);
-           beta(:,i)  = eigvec_comp(j:j+2,2);
+       % eigvec_comp : 
+       %    size = Mx6
+       %    columns : alpha_1, alpha_2, ... , beta_3 (alpha_i is i'th component of alpha)
+       %    rows : i'th row is i'th collocation point            
+       eigvec_comp = zeros(M,6);
+       for i = 1:6
+           j = (i-1)*M + 1;
+           eigvec_comp(:,i) = X(j:j+M-1,1)';
        end
-       % matrix with colums as time series of each component
-       eigvec_comp_real = alpha'; eigvec_comp_img = beta';
-        
-       ceq = zeros(2*3*M,1);
+       
+       eigval = complex(X(end-1,1), X(end,1));
+       
+       % no inequality constraints
+       c = [];
+ 
        % cheb diff matrix for 6 components of eigvector
        [D, cheb_x] = cheb_diff(M-1);
-       diffmat = [D       ,zeros(M),zeros(M);
-                  zeros(M),D       ,zeros(M);
-                  zeros(M),zeros(M),D       ];
               
-       % vector of the form [u1', u2', .. , u6']', where ui is 
-       % a column vector of  the value of i'th component of the eigenvector
-       % at M points
-       udot_real = zeros(3*M,1); udot_img = zeros(3*M,1);
-       for i = 1:3
-           j = (i-1)*M+1;
-           udot_real(j:j+M-1,1) = eigvec_comp_real(:,i);
-           udot_img(j:j+M-1,1) = eigvec_comp_img(:,i);
+       % dot_cap : 
+       %    size = 6Mx1
+       %    is of the form [alpha_1_dot_cap', ... , beta_3_dot_cap']'
+       %    alpha_1_dot_cap represents the cheb derivative of alpha_1
+       dot_cap = zeros(6*M,1);
+       for i = 1:6
+            j = (i-1)*M + 1;
+            dot_cap(j:j+M-1,1) = (-2/tf)*D*eigvec_comp(:,i);
        end
-       % cheb interpolated derivative
-       alphadot_cap = -(2/tf)*diffmat*udot_real;
-       betadot_cap  = -(2/tf)*diffmat*udot_img;
        
        % calculating actual derivative
        cheb_t = 0.5*tf*(1-cheb_x);
-       % matrix has columns as time series of components of eigenvector at
-       % M points (actual value)
-       udot_real_actual = zeros(M,3); udot_img_actual = zeros(M,3);
-       for i = 1:M
-           I = eye(3);
-           A = aircraft.get_jac(cheb_t(i), tf, VR, coeffs, N);
-           temp_udot_real = (A - real(eigval)*I)*alpha(:,i) + imag(eigval)*beta(:,i);
-           temp_udot_img  = (A - real(eigval)*I)*beta(:,i)  - imag(eigval)*alpha(:,i); 
-           udot_real_actual(i,:) = temp_udot_real'; 
-           udot_img_actual(i,:) = temp_udot_img';
-       end
-       alphadot = zeros(3*M,1); betadot = zeros(3*M,1);
-       for i = 1:3
-           j = (i-1)*M+1;
-           alphadot(j:j+M-1,1) = udot_real_actual(:,i);
-           betadot(j:j+M-1,1) = udot_img_actual(:,i);
-       end
-       ceq(1:3*M,1) = alphadot_cap - alphadot;
-       ceq(3*M+1:6*M,1) = betadot_cap - betadot;
        
-%        % norm of eigenvectors constrained to be = 1
-%        eigvec = complex(alpha, beta);
-%        for i = 1:M
-%            ceq(12*M+i,1) = norm(eigvec(:,i)) - 1;
-%        end
+       % alpha, beta:
+       %    size = 3xM
+       %    each column is value of alpha at that collocation point
+       alpha = zeros(3,M); beta = zeros(3,M);
+       for i = 1:M
+           alpha(:,i) = eigvec_comp(i,1:3)';
+           beta(:,i) = eigvec_comp(i,4:6)';
+       end
+       
+       % actual_dot_comp :
+       %    size = Mx6
+       %    same structure as eigvec_comp but is made of the actual
+       %    derivative
+       actual_dot_comp = zeros(M,6);
+       for i = 1:M
+           t = cheb_t(i);
+           A = aircraft.get_jac(t, tf, VR, coeffs, N);
+           alpha_dot = (A - real(eigval)*eye(3))*alpha(:,i) + imag(eigval)*beta(:,i);
+           beta_dot  = (A - real(eigval)*eye(3))*beta(:,i)  - imag(eigval)*alpha(:,i);
+           actual_dot_comp(i,1:3) = alpha_dot';
+           actual_dot_comp(i,4:6) = beta_dot';
+       end
+       
+       % dot : 
+       %    size = 6Mx1
+       %    is of the same for as dot_cap, except the values are now real derivatives
+       dot = zeros(6*M,1);
+       for i = 1:6
+            j = (i-1)*M + 1;
+            dot(j:j+M-1,1) = actual_dot_comp(:,i);
+       end
+       
+       ceq = dot - dot_cap;
        
     end
     if nargout > 2 % gradient of the constraints
