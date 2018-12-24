@@ -1,23 +1,23 @@
-function [eigvec, eigval, sol] = get_floquet(aircraft, N, M, xguess)
+function [eigvec, eig_val, sol] = get_floquet(aircraft, N, M, xguess)
     
     % dimension of eigenvec
     n = 3;  
     % dec vec is [re(u1), re(u2), .... , re(uM), im(u1), ... , re(lam), im(lam)]
     if isempty(xguess)
-        xguess = [(1/sqrt(6))*ones(2*M*n,1);0.0;0.0];
+        xguess = [(1/sqrt(6))*ones(2*M*n,1);1.0;0.0];
     end
     
     lb = ones(2*M*n+2,1);
     ub = ones(2*M*n+2,1);
     
     % bounds for eig_vec components
-    lb(1:2*M*n,1) = -100*lb(1:2*M*n,1); 
-    ub(1:2*M*n,1) = 100*ub(1:2*M*n,1);
+    lb(1:2*M*n,1) = -20*lb(1:2*M*n,1); 
+    ub(1:2*M*n,1) = 20*ub(1:2*M*n,1);
     % bounds for eigenvalue
-    lb(end-1,1) = -Inf; ub(end-1,1) = Inf;
-    lb(end,1) = -Inf; ub(end,1) = Inf;
+    lb(end-1,1) = -1; ub(end-1,1) = 1;
+    lb(end,1) = -1; ub(end,1) = 1;
     
-    options = optimoptions('fmincon', 'Display', 'Iter', 'Algorithm', 'sqp', 'MaxFunctionEvaluations', 1000000, 'ConstraintTolerance', 1e-5);
+    options = optimoptions('fmincon', 'Display', 'Iter', 'Algorithm', 'sqp', 'MaxFunctionEvaluations', 1000000, 'ConstraintTolerance', 1e-5, 'StepTolerance', 1e-8);
     sol = fmincon(@(x) objfun(x, N,2), xguess, [], [], [], [], lb, ub, @(x) constFun(x, aircraft, N, M, true), options);
     
     % retrieve eigenvectors at each point
@@ -37,7 +37,7 @@ function [eigvec, eigval, sol] = get_floquet(aircraft, N, M, xguess)
     end
     
     % retrieve eigenvalue
-    eigval = complex(sol(end-1), sol(end));
+    eig_val = complex(sol(end-1), sol(end));
     
     
     

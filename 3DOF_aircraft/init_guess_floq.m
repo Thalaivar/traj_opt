@@ -1,15 +1,15 @@
-load('/Users/dhruvlaad/ranjit_mohan/traj_opt/3DOF_aircraft/solutions/lin_O_shaped.mat')
-
 get_FTM
-M = 50;
+M = 100;
 
 [~, cheb_x] = cheb_diff(M-1);
 cheb_t = 0.5*tf*(1 - cheb_x);
 
 [V,D] = eig(H2);
-eigval = (1/tf)*log(D(3,3));
+%eigval = (1/tf)*log(D(3,3));
+eigval = complex(0.1, 0);
 params = [real(eigval), imag(eigval), N];
-y0 = [real(V(:,1));imag(V(:,1))];
+%V = (1/tf)*log(V);
+y0 = (1/sqrt(6))*ones(1,6);
 tspan = cheb_t;
 
 [t, y] = ode45(@(t,y) model(t, y, params, aircraft), tspan, y0);
@@ -19,6 +19,10 @@ for i = 1:6
     j = (i-1)*M + 1;
     init_guess(j:j+M-1,1) = y(:,i);
 end
+
+init_guess(end+1,1) = real(eigval);
+init_guess(end+1,1) = imag(eigval);
+
 
 function ydot = model(t, y, params, aircraft)
     alpha = y(1:3,1); beta = y(4:6,1);

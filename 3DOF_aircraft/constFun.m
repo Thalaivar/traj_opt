@@ -1,4 +1,3 @@
-
 function [c, ceq, dc, dceq] = constFun(X, aircraft, N, M, floq)
     % if eigenvalues are not being estimated
     if(floq == false)
@@ -8,7 +7,9 @@ function [c, ceq, dc, dceq] = constFun(X, aircraft, N, M, floq)
        coeffs_z = X(2*n_coeffs+1:3*n_coeffs,1);
        coeffs = [coeffs_x,coeffs_y, coeffs_z];
        VR = X(3*n_coeffs+1,1); tf = X(3*n_coeffs+2,1);
-    
+       
+       M = 50;
+       
        c = zeros(12*(M+1),1);
        t = linspace(0, tf, M);
        for i = 1:M
@@ -61,7 +62,6 @@ function [c, ceq, dc, dceq] = constFun(X, aircraft, N, M, floq)
        
        eigval = complex(X(end-1,1), X(end,1));
        
-       % no inequality constraints
        c = [];
  
        % cheb diff matrix for 6 components of eigvector
@@ -112,7 +112,8 @@ function [c, ceq, dc, dceq] = constFun(X, aircraft, N, M, floq)
             dot(j:j+M-1,1) = actual_dot_comp(:,i);
        end
        
-       ceq = dot - dot_cap;
+       ceq = dot - dot_cap; 
+       ceq(end+1:end+6,1) = eigvec_comp(1,:)' - eigvec_comp(end,:)';
        
     end
     if nargout > 2 % gradient of the constraints
