@@ -1,1 +1,0 @@
-examination of the cineq evaluated on the 8 harmonic FS approximation of the pseudospectral solution reveals that Cfun is sound in its making.

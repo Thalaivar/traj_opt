@@ -1,5 +1,4 @@
-function [eigvec, eig_val, sol] = get_floquet(aircraft, N, M, xguess)
-    
+function [eigvec, eigval, sol] = optimize_floq(aircraft, M, xguess)    
     % dimension of eigenvec
     n = 3;  
     % dec vec is [re(u1), re(u2), .... , re(uM), im(u1), ... , re(lam), im(lam)]
@@ -17,8 +16,8 @@ function [eigvec, eig_val, sol] = get_floquet(aircraft, N, M, xguess)
     lb(end-1,1) = -1; ub(end-1,1) = 1;
     lb(end,1) = -1; ub(end,1) = 1;
     
-    options = optimoptions('fmincon', 'Display', 'Iter', 'Algorithm', 'sqp', 'MaxFunctionEvaluations', 1000000, 'ConstraintTolerance', 1e-5, 'StepTolerance', 1e-8);
-    sol = fmincon(@(x) objfun(x, N,2), xguess, [], [], [], [], lb, ub, @(x) constFun(x, aircraft, N, M, true), options);
+    options = optimoptions('fmincon', 'Display', 'Iter', 'Algorithm', 'sqp', 'MaxFunctionEvaluations', 1000000, 'ConstraintTolerance', 1e-5, 'StepTolerance', 1e-8, 'UseParallel', true);
+    sol = fmincon(@(x) objfun(x, N,2), xguess, [], [], [], [], lb, ub, @(x) constFun_floq(x, aircraft, N, M, true), options);
     
     % retrieve eigenvectors at each point
     eigvec_comp = zeros(M,6);
@@ -37,8 +36,5 @@ function [eigvec, eig_val, sol] = get_floquet(aircraft, N, M, xguess)
     end
     
     % retrieve eigenvalue
-    eig_val = complex(sol(end-1), sol(end));
-    
-    
-    
+    eigval = complex(sol(end-1), sol(end));
 end

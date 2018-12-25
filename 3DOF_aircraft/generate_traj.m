@@ -1,33 +1,14 @@
-function [coeffs, VR, tf, sol, f] = generate_traj(aircraft, N, x0, p)
-   
-    % dec vec = [ax0, ... , ax1_N,ax2_1, ... , ax2_N, ay0, ... , ay2_N, az0, ... ,az2_N, VR, tf]
-    % a$1_i corresponds to teh coefficient of the i'th cosine harmonic
-    % a$2_i corresponds to teh coefficient of the i'th sine harmonic
-    xguess = x0;
-    aircraft.p = p;
-    
-    % if x0 was empty, it means we are running for first time
-    if isempty(xguess)
-        % use linear wind model
-        xguess = get_init_guess('a', N);
-    end
-    
-    %[c , ceq] = constFun(xguess, aircraft, N);
-    
-    lb = ones(3*(2*N+1)+2,1); ub = ones(3*(2*N+1)+2,1);
-    % bounds on coefficients
-    lb(1:3*(2*N+1),1) = -500*lb(1:3*(2*N+1),1);
-    ub(1:3*(2*N+1),1) = 500*ub(1:3*(2*N+1),1);
-    % bounds on VR and tf
-    lb(end-1,1) = 0; ub(end-1,1) = 2;
-    lb(end,1) = 0; ub(end,1) = 30;
-    
-    %[c, ceq] = constFun(xguess, aircraft, N);
-    
-    options = optimoptions('fmincon', 'Display', 'Iter', 'Algorithm', 'interior-point', 'MaxFunctionEvaluations', 2000000, 'StepTolerance', 1e-10, 'MaxIterations', 10000);
-    [f, sol] = fmincon(@(x) objfun_floq(x, aircraft, N), xguess, [], [], [], [], lb, ub, @(x) constFun(x, aircraft, N, 0, false), options);
-    
-    n = (2*N+1);
-    coeffs = [sol(1:n,1), sol(n+1:2*n,1), sol(2*n+1:3*n,1)];
-    VR = sol(end-1,1); tf = sol(end,1);
-end
+addpath('trajectory')
+addpath('constraint_funcs')
+addpath('floquet')
+
+ac = aircraft();
+ac.N = 8; % no. of harmonics
+p = 1; % wind model param
+
+[ac, sol] = optimize_traj(ac, [] , p);
+visualisation('traj-3d', ac);
+
+rmpath('trajectory')
+rmpath('constraint_funcs')
+rmpath('floquet')

@@ -10,15 +10,18 @@ classdef aircraft
         b = 3;
         p = 1;
         % limits is of the form [Clmin, Clmax, Vmin, Vmax, nu_min, nu_max, CTmin, CTmax, gamma_min, gamma_max]
-        limits = [-0.2, 1.1, 10, 80, -pi/3, pi/3, -1e-4, 1e-4, -pi/4, pi/4]
+        limits = [-0.2, 1.17, 10, 80, -pi/3, pi/3, -1e-4, 1e-4, -pi/4, pi/4]
         x
         u
-        traj_params = struct();
+        coeffs
+        tf
+        VR
+        N
     end
     
     methods
         % constructor
-        function obj = aircraft(m,rho,S,g,Cd0,Cd1,Cd2,b,p,limits)
+        function obj = aircraft(m,rho,S,Cd0,Cd1,Cd2,b,p,limits)
            if nargin > 0
                 obj.m = m; obj.rho = rho; obj.S = S; obj.Cd0 = Cd0;
                 obj.Cd1 = Cd1; obj.Cd2 = Cd2; obj.b = b; obj.p = p;
@@ -27,15 +30,15 @@ classdef aircraft
         end
         
         % to get the non flat states
-        function obj = get_xu(obj, sigma, VR)
+        function obj = get_xu(obj, sigma)
             z = sigma(3);
             zdot = sigma(6); xdot = sigma(4); ydot = sigma(5); 
             zddot = sigma(9); xddot = sigma(7); yddot = sigma(8);
             
             % wind model
             p_exp = obj.p;
-            Wx = VR*(-z)^p_exp;
-            Wxz = (p_exp*VR)*((-z)^p_exp)/z;
+            Wx = obj.VR*(-z)^p_exp;
+            Wxz = (p_exp*obj.VR)*((-z)^p_exp)/z;
             
             % non flat outputs
             V = ((xdot - Wx)^2 + ydot^2 + zdot^2)^0.5;
@@ -46,9 +49,9 @@ classdef aircraft
             chidot = (xdot*yddot - yddot*Wx - ydot*xddot + ydot*zdot*Wxz)/(ydot^2 + xdot^2 + Wx^2 - 2*xdot*Wx);
             nu = atan((V*cos(gamma)*chidot - Wxz*zdot*sin(chi))/(V*gammadot + obj.g*cos(gamma) - Wxz*cos(chi)*sin(gamma)*zdot));
             Cl = (obj.m*V*cos(gamma)*chidot - obj.m*Wxz*zdot*sin(chi))/(0.5*obj.rho*obj.S*sin(nu)*V^2);
-            if(nu == 0 && (chidot == 0 || zdot == 0 || chi == 0))
-                Cl = 0;
-            end
+%             if(nu == 0 && (chidot == 0 || zdot == 0 || chi == 0))
+%                 Cl = 0;
+%             end
             
             % aerodynamic forces
             Cd = obj.Cd0 + obj.Cd1*Cl + obj.Cd2*Cl^2;
@@ -58,10 +61,13 @@ classdef aircraft
             obj.x = [V, gamma, chi]; obj.u = [Cl, nu, CT];
         end
         
-        function ydot = model(obj, X, U, VR)
+        function ydot = non_flat_model(obj, t, X)
             V = X(1,1); gamma = X(3,1); chi = X(2,1);
             z = X(6,1); 
-            Cl = U(1,1); nu = U(2,1); CT = U(3,1); 
+            
+            sigma = get_traj(t, obj.tf, obj.coeffs, obj.N);
+            obj = obj.get_xu(sigma);
+            Cl = obj.u(1); nu = obj.u(2); CT = obj.u(3);
             
             Cd = obj.Cd0 + obj.Cd1*Cl + obj.Cd2*Cl^2;
             D = 0.5*obj.rho*obj.S*V^2*Cd;
@@ -70,28 +76,28 @@ classdef aircraft
             
              % wind model
             p_exp = obj.p;
-            Wx = VR*(-z)^p_exp;
-            Wxz = (p_exp*VR)*((-z)^p_exp)/z;
+            Wx = obj.VR*(-z)^p_exp;
+            Wxz = (p_exp*obj.VR)*((-z)^p_exp)/z;
             
-            zdot = -V*sin(gamma); ydot = V*sin(chi)*cos(gamma); xdot = V*cos(chi)*cos(gamma) + Wx;
+            zdot = -V*sin(gamma); xdot = V*cos(chi)*cos(gamma) + Wx; ydot = V*sin(chi)*cos(gamma);
             Vdot = (-D/obj.m) - obj.g*sin(gamma) - Wxz*zdot*cos(chi)*cos(gamma) + (T/obj.m);
             chidot = (L*sin(nu)/(obj.m*V*cos(gamma))) + Wxz*zdot*sin(chi)/(V*cos(gamma));
             gammadot = (L*cos(nu)/(obj.m*V)) - obj.g*cos(gamma)/V + Wxz*zdot*cos(chi)*sin(gamma)/V;
             
-            ydot = [Vdot; chidot; gammadot; xdot; ydot; zdot];
+            ydot = [Vdot; chidot; gammadot];
         end
         
-        function A = get_jac(obj, t, tf, VR, coeffs, N)
+        function A = get_jac(obj, t)
             
-            sigma = obj.get_traj(t, tf, coeffs, N);
-            obj = obj.get_xu(sigma, VR);
+            sigma = get_traj(t, obj.tf, obj.coeffs, obj.N);
+            obj = obj.get_xu(sigma);
             V = obj.x(1); gamma = obj.x(2); chi = obj.x(3);
             Cl = obj.u(1); nu = obj.u(2); CT = obj.u(3);
             
             % wind model
             p_exp = obj.p; z = sigma(3); zdot = sigma(6);
             %Wx = VR*(-z)^p_exp;
-            Wxz = (p_exp*VR)*((-z)^p_exp)/z;
+            Wxz = (p_exp*obj.VR)*((-z)^p_exp)/z;
             
             
             % forces and drag polar
@@ -120,31 +126,6 @@ classdef aircraft
                  f21, f22, f23;
                  f31, f32, f33];
          end
-    end
-    
-        
-    methods (Static)
-        
-        function sigma = get_traj(t, tf, coeffs, N)
-            ax = coeffs(:,1); ay = coeffs(:,2); az = coeffs(:,3);
-            
-            x = ax(1); y = ay(1); z = az(1); 
-            xdot = 0; ydot = 0; zdot = 0; xddot = 0; yddot = 0; zddot = 0; 
-            for i = 2:N+1
-                x = x + ax(i)*cos(2*pi*(i-1)*t/tf) + ax(i+N)*sin(2*pi*(i-1)*t/tf);
-                y = y + ay(i)*cos(2*pi*(i-1)*t/tf) + ay(i+N)*sin(2*pi*(i-1)*t/tf);
-                z = z + az(i)*cos(2*pi*(i-1)*t/tf) + az(i+N)*sin(2*pi*(i-1)*t/tf);
-                xdot = xdot - ax(i)*(2*pi*(i-1)/tf)*sin(2*pi*(i-1)*t/tf) + ax(i+N)*(2*pi*(i-1)/tf)*cos(2*pi*(i-1)*t/tf);
-                ydot = ydot - ay(i)*(2*pi*(i-1)/tf)*sin(2*pi*(i-1)*t/tf) + ay(i+N)*(2*pi*(i-1)/tf)*cos(2*pi*(i-1)*t/tf);
-                zdot = zdot - az(i)*(2*pi*(i-1)/tf)*sin(2*pi*(i-1)*t/tf) + az(i+N)*(2*pi*(i-1)/tf)*cos(2*pi*(i-1)*t/tf);
-                xddot = xddot - ax(i)*((2*pi*(i-1)/tf)^2)*cos(2*pi*(i-1)*t/tf) - ax(i+N)*((2*pi*(i-1)/tf)^2)*sin(2*pi*(i-1)*t/tf);
-                yddot = yddot - ay(i)*((2*pi*(i-1)/tf)^2)*cos(2*pi*(i-1)*t/tf) - ay(i+N)*((2*pi*(i-1)/tf)^2)*sin(2*pi*(i-1)*t/tf);
-                zddot = zddot - az(i)*((2*pi*(i-1)/tf)^2)*cos(2*pi*(i-1)*t/tf) - az(i+N)*((2*pi*(i-1)/tf)^2)*sin(2*pi*(i-1)*t/tf);
-            end
-            
-            sigma = [x,y,z,xdot,ydot,zdot,xddot,yddot,zddot];
-        end
-        
     end
 end      
         
