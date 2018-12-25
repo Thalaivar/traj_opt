@@ -9,7 +9,7 @@ function [aircraft, sol] = optimize_traj(aircraft, x0, p)
     
     % if x0 was empty, it means we are running for first time
     if isempty(xguess)
-        xguess = get_init_guess('eight', N);
+        xguess = get_init_guess('circle', N);
     end
     
     lb = ones(3*(2*N+1)+2,1); ub = ones(3*(2*N+1)+2,1);

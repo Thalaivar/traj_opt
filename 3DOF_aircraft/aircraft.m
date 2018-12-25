@@ -84,7 +84,7 @@ classdef aircraft
             chidot = (L*sin(nu)/(obj.m*V*cos(gamma))) + Wxz*zdot*sin(chi)/(V*cos(gamma));
             gammadot = (L*cos(nu)/(obj.m*V)) - obj.g*cos(gamma)/V + Wxz*zdot*cos(chi)*sin(gamma)/V;
             
-            ydot = [Vdot; chidot; gammadot];
+            ydot = [Vdot; chidot; gammadot; xdot; ydot; zdot];
         end
         
         function A = get_jac(obj, t)
