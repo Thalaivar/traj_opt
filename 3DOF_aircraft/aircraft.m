@@ -9,8 +9,6 @@ classdef aircraft
         Cd2 = 0.0517;
         b = 3;
         p = 1;
-        % limits is of the form [Clmin, Clmax, Vmin, Vmax, nu_min, nu_max, CTmin, CTmax, gamma_min, gamma_max]
-        limits = [-0.2, 1.17, 10, 80, -pi/3, pi/3, -1e-4, 1e-4, -pi/4, pi/4]
         x
         u
         coeffs
@@ -21,11 +19,10 @@ classdef aircraft
     
     methods
         % constructor
-        function obj = aircraft(m,rho,S,Cd0,Cd1,Cd2,b,p,limits)
+        function obj = aircraft(m,rho,S,Cd0,Cd1,Cd2,b,p)
            if nargin > 0
                 obj.m = m; obj.rho = rho; obj.S = S; obj.Cd0 = Cd0;
                 obj.Cd1 = Cd1; obj.Cd2 = Cd2; obj.b = b; obj.p = p;
-                obj.limits = limits;
            end 
         end
         
@@ -63,8 +60,8 @@ classdef aircraft
         
         function ydot = non_flat_model(obj, t, X)
             V = X(1,1); gamma = X(3,1); chi = X(2,1);
-            z = X(6,1); 
-            
+            z = X(6,1);  
+                
             sigma = get_traj(t, obj.tf, obj.coeffs, obj.N);
             obj = obj.get_xu(sigma);
             Cl = obj.u(1); nu = obj.u(2); CT = obj.u(3);
@@ -87,44 +84,59 @@ classdef aircraft
             ydot = [Vdot; chidot; gammadot; xdot; ydot; zdot];
         end
         
-        function A = get_jac(obj, t)
-            
-            sigma = get_traj(t, obj.tf, obj.coeffs, obj.N);
-            obj = obj.get_xu(sigma);
-            V = obj.x(1); gamma = obj.x(2); chi = obj.x(3);
-            Cl = obj.u(1); nu = obj.u(2); CT = obj.u(3);
-            
-            % wind model
-            p_exp = obj.p; z = sigma(3); zdot = sigma(6);
-            %Wx = VR*(-z)^p_exp;
-            Wxz = (p_exp*obj.VR)*((-z)^p_exp)/z;
-            
-            
-            % forces and drag polar
-            Cd = obj.Cd0 + obj.Cd1*Cl + obj.Cd2*Cl^2;
-            L = 0.5*obj.S*obj.rho*Cl*V^2;
-            
-            % constructing the Jacobian
-            f11 = (obj.rho*obj.S*V*Cd/obj.m) - (obj.rho*obj.S*V*CT/obj.m);
-            f12 = Wxz*zdot*sin(chi)*cos(gamma); f13 = -obj.g*cos(gamma) + Wxz*zdot*cos(chi)*sin(gamma);
-            %f14 = 0; f15 = 0; f16 = 0;
-            f21 = (sin(nu)/(obj.m*cos(gamma)))*(0.5*obj.rho*obj.S*Cl) - (Wxz*zdot*sin(chi)/cos(gamma))*(1/V^2);
-            f22 = (Wxz*zdot/(V*cos(gamma)))*cos(chi);
-            f23 = (L*sin(nu)/(obj.m*V))*(tan(gamma)*sec(gamma)) + (Wxz*zdot*sin(chi)/V)*(tan(gamma)*sec(gamma));
-            %f24 = 0; f25 = 0; f26 = 0;
-            f31 = (cos(nu)/obj.m)*(0.5*obj.rho*obj.S*Cl) + (obj.g*cos(gamma)/V^2) - (Wxz*zdot*cos(chi)*sin(gamma)/V^2);
-            f32 = -Wxz*zdot*sin(chi)*cos(gamma)/V;
-            f33 = (obj.g*sin(gamma) + Wxz*zdot*cos(gamma)*cos(chi))/V;
-            %f34 = 0; f35 = 0; f36 = 0;
-%             f41 = cos(chi)*cos(gamma); f42 = -V*cos(gamma)*sin(chi); f43 = -V*cos(chi)*sin(gamma); f44 = 0; f45 = 0; f46 = Wxz;
-%             f51 = sin(chi)*cos(gamma); f52 = V*cos(chi)*cos(gamma); f53 = -V*sin(gamma)*sin(chi);
-%             f54 = 0; f55 = 0; f56 = 0;
-%             f61 = -sin(gamma); f62 = 0; f63 = -V*cos(gamma);
-%             f64 = 0; f65 = 0; f66 = 0;
-            
-            A = [f11, f12, f13;
-                 f21, f22, f23;
-                 f31, f32, f33];
+        function A = get_jac(obj, t, type)
+            if strcmp(type, 'analytic')
+                if obj.p == 1  
+                    sigma = get_traj(t, obj.tf, obj.coeffs, obj.N);
+                    obj = obj.get_xu(sigma);
+                    V = obj.x(1); gamma = obj.x(2); chi = obj.x(3);
+                    Cl = obj.u(1); nu = obj.u(2); CT = obj.u(3);
+
+                    % wind model
+                    p_exp = obj.p; z = sigma(3); zdot = sigma(6);
+                    %Wx = VR*(-z)^p_exp;
+                    Wxz = (p_exp*obj.VR)*((-z)^p_exp)/z;
+
+
+                    % forces and drag polar
+                    Cd = obj.Cd0 + obj.Cd1*Cl + obj.Cd2*Cl^2;
+                    L = 0.5*obj.S*obj.rho*Cl*V^2;
+
+                    % constructing the Jacobian
+                    f11 = (obj.rho*obj.S*V*Cd/obj.m) - (obj.rho*obj.S*V*CT/obj.m);
+                    f12 = Wxz*zdot*sin(chi)*cos(gamma); f13 = -obj.g*cos(gamma) + Wxz*zdot*cos(chi)*sin(gamma);
+                    %f14 = 0; f15 = 0; f16 = 0;
+                    f21 = (sin(nu)/(obj.m*cos(gamma)))*(0.5*obj.rho*obj.S*Cl) - (Wxz*zdot*sin(chi)/cos(gamma))*(1/V^2);
+                    f22 = (Wxz*zdot/(V*cos(gamma)))*cos(chi);
+                    f23 = (L*sin(nu)/(obj.m*V))*(tan(gamma)*sec(gamma)) + (Wxz*zdot*sin(chi)/V)*(tan(gamma)*sec(gamma));
+                    %f24 = 0; f25 = 0; f26 = 0;
+                    f31 = (cos(nu)/obj.m)*(0.5*obj.rho*obj.S*Cl) + (obj.g*cos(gamma)/V^2) - (Wxz*zdot*cos(chi)*sin(gamma)/V^2);
+                    f32 = -Wxz*zdot*sin(chi)*cos(gamma)/V;
+                    f33 = (obj.g*sin(gamma) + Wxz*zdot*cos(gamma)*cos(chi))/V;
+                    %f34 = 0; f35 = 0; f36 = 0;
+        %             f41 = cos(chi)*cos(gamma); f42 = -V*cos(gamma)*sin(chi); f43 = -V*cos(chi)*sin(gamma); f44 = 0; f45 = 0; f46 = Wxz;
+        %             f51 = sin(chi)*cos(gamma); f52 = V*cos(chi)*cos(gamma); f53 = -V*sin(gamma)*sin(chi);
+        %             f54 = 0; f55 = 0; f56 = 0;
+        %             f61 = -sin(gamma); f62 = 0; f63 = -V*cos(gamma);
+        %             f64 = 0; f65 = 0; f66 = 0;
+
+                    A = [f11, f12, f13;
+                         f21, f22, f23;
+                         f31, f32, f33];
+                else, "ERROR! Analytic Jacobian cannot be used for exponential profile!", A = [];
+                end
+            elseif strcmp(type, 'FD')
+                I = eye(6); A = zeros(6);
+                for i = 1:6
+                    % get states at current nominal point
+                    sig = get_traj(t, obj.tf, obj.coeffs, obj.N);
+                    obj = obj.get_xu(sig);
+                    h = 1e-8; % perturbation
+                    x0 = [obj.x(1); obj.x(3); obj.x(2); sig(1); sig(2); sig(3)];
+                    f1 = obj.non_flat_model(t, x0 - h*I(:,i)); f2 = obj.non_flat_model(t, x0 + h*I(:,i));
+                    A(:,i) = (f2-f1)/(2*h);
+                end
+            end
          end
     end
 end      

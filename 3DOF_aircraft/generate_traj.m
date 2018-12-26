@@ -1,4 +1,3 @@
-clearvars
 clc
 
 addpath('trajectory')
@@ -9,9 +8,9 @@ ac = aircraft();
 ac.N = 5; % no. of harmonics
 p = 1; % wind model param
 
-[ac, sol] = optimize_traj(ac, [] , p);
-%visualisation('traj-3d', ac);
-%axis equal
+[ac, sol] = optimize_traj(ac, sol, p);
+visualisation('traj-3d', ac);
+axis equal
 
 rmpath('trajectory')
 rmpath('constraint_funcs')

@@ -1,10 +1,10 @@
 function xguess = get_init_guess(type, N)
     if strcmp(type, 'circle')
-        VR_0 = 0.1; tf_0 = 20;
+        VR_0 = 0.21; tf_0 = 10;
         t = linspace(0, tf_0, 1000);
         x = 20*(-1 + cos(2*pi*t/tf_0));
         y = -20*(2^0.5)*sin(2*pi*t/tf_0);
-        z = -20*(1 - cos(2*pi*t/tf_0)) + 0.11;    
+        z = -20*(1 - cos(2*pi*t/tf_0)) - 0.11;    
     elseif strcmp(type, 'eight')
         VR_0 = 0.3; tf_0 = 20;
         t = linspace(0, tf_0, 1000);
