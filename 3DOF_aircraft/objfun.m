@@ -1,5 +1,6 @@
 % aircraft needs N and params set
 function f = objfun(X, aircraft, type, M)
+    persistent eigval;
     N = aircraft.N; n_coeffs = 2*N+1;
     if nargin <= 3
         % to be used during trajectory optimisation
@@ -12,20 +13,27 @@ function f = objfun(X, aircraft, type, M)
             coeffs_y = X(n_coeffs+1:2*n_coeffs,1);
             coeffs_z = X(2*n_coeffs+1:3*n_coeffs,1);
             coeffs = [coeffs_x,coeffs_y, coeffs_z];
-            VR = X(3*n_coeffs+1,1); tf = X(3*n_coeffs+2,1);
-
-            aircraft.tf = tf; aircraft.VR = VR;
-            aircraft.coeffs = coeffs;
-
-            [FTM_expo, ~] = get_FTM(aircraft);
-            D = (1/tf)*log(eig(FTM_expo));
-            f = -max(real(D));
+            tf = X(3*n_coeffs+2,1); VR = X(3*n_coeffs+1,1);
+            aircraft.tf = tf; aircraft.coeffs = coeffs;
+            aircraft.VR = VR;
+            
+            FTM_expo = get_FTM(aircraft, 'expo');
+            D = eig(FTM_expo); f = 0;
+             for i = 1:3
+                 f = f + atan(10*(abs(D(i)) - 1));
+             end
+            f = f + 0.1*VR;
+            max_eig = max(abs(D));
+            if(isempty(eigval)), eigval = max_eig; end
+            if(eigval > max_eig), eigval = max_eig; aircraft.solution = X; end
+            
         end
+        
     % to be used when estimating floquet expo via collocation (probably
     % obsolete)
     elseif nargin > 3 && strcmp(type, 'floq_old')
         n = 3; % dimension of 3DOF system
         eigval = complex(X(2*n*M+1,1), X(2*n*M+2,1));
-        f = -real(eigval);
+        f = -real(eigval);     
     end
 end

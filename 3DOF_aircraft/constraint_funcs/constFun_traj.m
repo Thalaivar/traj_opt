@@ -1,16 +1,22 @@
 % to be used when optimising for periodic trajectories ONLY
 % NOTE: 
-%   aircraft needs N and params set
-function [c , ceq] = constFun_traj(X, aircraft)
+%   aircraft needs N and params set (and VR for stability optimisation)
+function [c , ceq] = constFun_traj(X, aircraft, type)
        N = aircraft.N;
        n_coeffs = 2*N+1;
        coeffs_x = X(1:n_coeffs,1);
        coeffs_y = X(n_coeffs+1:2*n_coeffs,1);
        coeffs_z = X(2*n_coeffs+1:3*n_coeffs,1);
        coeffs = [coeffs_x,coeffs_y, coeffs_z];
-       VR = X(3*n_coeffs+1,1); tf = X(3*n_coeffs+2,1);
-       aircraft.tf = tf; aircraft.VR = VR;
-       M = 75; % no. of points at which dynamic constraints are imposed
+        
+       if strcmp(type, 'traj')
+           VR = X(3*n_coeffs+1,1); tf = X(3*n_coeffs+2,1);
+           aircraft.tf = tf; aircraft.VR = VR;
+       elseif strcmp(type, 'stability')
+           tf = X(3*n_coeffs+1,1); aircraft.tf = tf;
+       end
+       
+       M = 50; % no. of points at which dynamic constraints are imposed
 
        c = zeros(18*M,1);
        t = linspace(0, tf, M);

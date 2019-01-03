@@ -56,9 +56,8 @@ function visualisation(choice, aircraft)
         end
         
         comet3(X(:,1), X(:,2), X(:,3))
-        hold on
         xlabel('x'); ylabel('y'); zlabel('z');
-        grid on
+        grid on 
         axis equal
     end
     

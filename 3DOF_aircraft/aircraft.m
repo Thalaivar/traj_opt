@@ -15,6 +15,7 @@ classdef aircraft
         tf
         VR
         N
+        solution
     end
     
     methods
@@ -86,7 +87,7 @@ classdef aircraft
         
         function A = get_jac(obj, t, type)
             if strcmp(type, 'analytic')
-                if obj.p == 1  
+               % if obj.p == 1  
                     sigma = get_traj(t, obj.tf, obj.coeffs, obj.N);
                     obj = obj.get_xu(sigma);
                     V = obj.x(1); gamma = obj.x(2); chi = obj.x(3);
@@ -95,7 +96,7 @@ classdef aircraft
                     % wind model
                     p_exp = obj.p; z = sigma(3); zdot = sigma(6);
                     %Wx = VR*(-z)^p_exp;
-                    Wxz = (p_exp*obj.VR)*((-z)^p_exp)/z;
+                    Wxz = -1*(p_exp*obj.VR)*((-z)^(p_exp-1));
 
 
                     % forces and drag polar
@@ -103,35 +104,36 @@ classdef aircraft
                     L = 0.5*obj.S*obj.rho*Cl*V^2;
 
                     % constructing the Jacobian
-                    f11 = (obj.rho*obj.S*V*Cd/obj.m) - (obj.rho*obj.S*V*CT/obj.m);
-                    f12 = Wxz*zdot*sin(chi)*cos(gamma); f13 = -obj.g*cos(gamma) + Wxz*zdot*cos(chi)*sin(gamma);
-                    %f14 = 0; f15 = 0; f16 = 0;
-                    f21 = (sin(nu)/(obj.m*cos(gamma)))*(0.5*obj.rho*obj.S*Cl) - (Wxz*zdot*sin(chi)/cos(gamma))*(1/V^2);
-                    f22 = (Wxz*zdot/(V*cos(gamma)))*cos(chi);
-                    f23 = (L*sin(nu)/(obj.m*V))*(tan(gamma)*sec(gamma)) + (Wxz*zdot*sin(chi)/V)*(tan(gamma)*sec(gamma));
-                    %f24 = 0; f25 = 0; f26 = 0;
-                    f31 = (cos(nu)/obj.m)*(0.5*obj.rho*obj.S*Cl) + (obj.g*cos(gamma)/V^2) - (Wxz*zdot*cos(chi)*sin(gamma)/V^2);
-                    f32 = -Wxz*zdot*sin(chi)*cos(gamma)/V;
-                    f33 = (obj.g*sin(gamma) + Wxz*zdot*cos(gamma)*cos(chi))/V;
-                    %f34 = 0; f35 = 0; f36 = 0;
-        %             f41 = cos(chi)*cos(gamma); f42 = -V*cos(gamma)*sin(chi); f43 = -V*cos(chi)*sin(gamma); f44 = 0; f45 = 0; f46 = Wxz;
-        %             f51 = sin(chi)*cos(gamma); f52 = V*cos(chi)*cos(gamma); f53 = -V*sin(gamma)*sin(chi);
-        %             f54 = 0; f55 = 0; f56 = 0;
-        %             f61 = -sin(gamma); f62 = 0; f63 = -V*cos(gamma);
-        %             f64 = 0; f65 = 0; f66 = 0;
-
-                    A = [f11, f12, f13;
-                         f21, f22, f23;
-                         f31, f32, f33];
-                else, "ERROR! Analytic Jacobian cannot be used for exponential profile!", A = [];
-                end
+                    f11 = (CT - Cd)*obj.rho*obj.S*V/obj.m;
+                    f12 = Wxz*zdot*sin(chi)*cos(gamma); f13 = -1*obj.g*cos(gamma) + Wxz*zdot*cos(chi)*sin(gamma);
+                    f14 = 0; f15 = 0; f16 = p_exp*(p_exp-1)*obj.VR*((-z)^(p_exp-2))*zdot*cos(chi)*cos(gamma);
+                    f21 = 0.5*obj.rho*obj.S*Cl*sin(nu)/(obj.m*cos(gamma)) - (Wxz*zdot*sin(chi)/(cos(gamma)*V^2));
+                    f22 = Wxz*cos(chi)*zdot/(V*cos(gamma));
+                    f23 = 0.5*obj.rho*obj.S*Cl*V*sin(nu)*sin(gamma)/(obj.m*(cos(gamma))^2) + Wxz*zdot*sin(chi)*sin(gamma)/(V*(cos(gamma))^2);
+                    f24 = 0; f25 = 0; f26 = p_exp*(p_exp-1)*obj.VR*((-z)^(p_exp-2))*zdot*sin(chi)/(V*cos(gamma));
+                    f31 = 0.5*obj.rho*obj.S*Cl*cos(nu)/obj.m + (obj.g*cos(gamma)/V^2) - (Wxz*cos(chi)*sin(gamma)*zdot/V^2);
+                    f32 = -Wxz*zdot*sin(chi)*sin(gamma)/V;
+                    f33 = obj.g*sin(gamma)/V + (Wxz*zdot*cos(gamma)*cos(chi)/V);
+                    f34 = 0; f35 = 0; f36 = p_exp*(p_exp-1)*obj.VR*((-z)^(p_exp-2))*cos(chi)*sin(gamma)*zdot/V;
+                    f41 = cos(chi)*cos(gamma); f42 = -V*sin(chi)*cos(gamma); f43 = -V*cos(chi)*sin(gamma);
+                    f44 = 0; f45 = 0; f46 = Wxz;
+                    f51 = sin(chi)*cos(gamma); f52 = V*cos(chi)*cos(gamma); f53 = -V*sin(chi)*sin(gamma);
+                    f54 = 0; f55 = 0; f56 = 0;
+                    f61 = -sin(gamma); f62 = 0; f63 = -V*cos(gamma); f64 = 0; f65 = 0; f66 = 0;
+                    A = [f11, f12, f13, f14, f15, f16;
+                         f21, f22, f23, f24, f25, f26;
+                         f31, f32, f33, f34, f35, f36;
+                         f41, f42, f43, f44, f45, f46;
+                         f51, f52, f53, f54, f55, f56;
+                         f61, f62, f63, f64, f65, f66];
+                %else, "ERROR! Analytic Jacobian cannot be used for exponential profile!", A = [];
             elseif strcmp(type, 'FD')
                 I = eye(6); A = zeros(6);
                 for i = 1:6
                     % get states at current nominal point
                     sig = get_traj(t, obj.tf, obj.coeffs, obj.N);
                     obj = obj.get_xu(sig);
-                    h = 1e-8; % perturbation
+                    h = 1e-4; % perturbation
                     x0 = [obj.x(1); obj.x(3); obj.x(2); sig(1); sig(2); sig(3)];
                     f1 = obj.non_flat_model(t, x0 - h*I(:,i)); f2 = obj.non_flat_model(t, x0 + h*I(:,i));
                     A(:,i) = (f2-f1)/(2*h);
