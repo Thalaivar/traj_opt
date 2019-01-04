@@ -6,7 +6,8 @@ addpath('trajectory');
 addpath('task');
 addpath('constraint_funcs');
 
-load('temp.mat')
+load('solutions/trajectory_opt/lin_O.mat')
+global eigval;
 
 %[ac, sol] = optimize_stability(ac, [sol(1:end-2,1);sol(end,1)], p);
 [ac, sol] = optimize_stability(ac, sol, p);

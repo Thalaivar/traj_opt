@@ -1,6 +1,6 @@
 % aircraft needs N and params set
 function f = objfun(X, aircraft, type, M)
-    persistent eigval;
+    global eigval;
     N = aircraft.N; n_coeffs = 2*N+1;
     if nargin <= 3
         % to be used during trajectory optimisation
@@ -15,15 +15,16 @@ function f = objfun(X, aircraft, type, M)
             coeffs = [coeffs_x,coeffs_y, coeffs_z];
             tf = X(3*n_coeffs+2,1); VR = X(3*n_coeffs+1,1);
             aircraft.tf = tf; aircraft.coeffs = coeffs;
-            aircraft.VR = VR;
+            aircraft.VR = VR; 
             
             FTM_expo = get_FTM(aircraft, 'expo');
             D = eig(FTM_expo); f = 0;
              for i = 1:3
                  f = f + atan(10*(abs(D(i)) - 1));
              end
-            f = f + 0.1*VR;
+            f = f + VR;
             max_eig = max(abs(D));
+            
             if(isempty(eigval)), eigval = max_eig; end
             if(eigval > max_eig), eigval = max_eig; aircraft.solution = X; end
             
