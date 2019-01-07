@@ -18,11 +18,11 @@ function f = objfun(X, aircraft, type, M)
             aircraft.VR = VR; 
             
             FTM_expo = get_FTM(aircraft, 'expo');
-            D = eig(FTM_expo); f = 0;
+            D = eig(FTM_expo); f = 0; param1 = 1; param2 = 10;
              for i = 1:3
-                 f = f + atan(10*(abs(D(i)) - 1));
+                 f = f + atan(param1*(abs(D(i)) - 1));
              end
-            f = f + VR;
+            f = f + param2*VR;
             max_eig = max(abs(D));
             
             if(isempty(eigval)), eigval = max_eig; end
