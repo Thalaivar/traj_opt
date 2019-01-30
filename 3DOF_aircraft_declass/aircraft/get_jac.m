@@ -17,8 +17,8 @@ function A = get_jac(solution, t, type)
     
     if strcmp(type, 'analytic') 
         sigma = get_traj(t, tf, coeffs, N);
-        [x, u] = get_xu(sigma, VR);
-        V = x(1); gamma = x(2); chi = x(3);
+        [X, u] = get_xu(sigma, VR);
+        V = X(1); gamma = X(2); chi = X(3);
         Cl = u(1); nu = u(2); CT = u(3);
 
         % wind model
@@ -59,9 +59,9 @@ function A = get_jac(solution, t, type)
         for i = 1:6
             % get states at current nominal point
             sig = get_traj(t, tf, coeffs, N);
-            [x, ~] = get_xu(sig, VR);
+            [X, ~] = get_xu(sig, VR);
             h = 1e-4; % perturbation
-            x0 = [x(1); x(3); x(2); sig(1); sig(2); sig(3)];
+            x0 = [X(1); X(3); X(2); sig(1); sig(2); sig(3)];
             f1 = non_flat_model(t, x0 - h*I(:,i), solution); f2 = non_flat_model(t, x0 + h*I(:,i), solution);
             A(:,i) = (f2-f1)/(2*h);
         end

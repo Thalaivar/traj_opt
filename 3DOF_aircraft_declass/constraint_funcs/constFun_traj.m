@@ -41,10 +41,10 @@ function [c , ceq] = constFun_traj(X, solution)
            sigma = get_traj(t(i), solution.tf, coeffs, N);
            x = sigma(1); y = sigma(2); z = sigma (3);
            % get states at time t`
-           [x, u] = get_xu(sigma, solution.VR);
+           [state, u] = get_xu(sigma, solution.VR);
            % constrain states and controls
-           V = x(1); Cl = u(1); nu = u(2);
-           CT = u(3); gamma = x(2);
+           V = state(1); Cl = u(1); nu = u(2);
+           CT = u(3); gamma = state(2);
            % Cl constraints
            c(j,1) = -0.2 - Cl;
            c(j+1,1) = Cl - 1.17;

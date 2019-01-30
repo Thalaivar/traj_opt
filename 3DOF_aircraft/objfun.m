@@ -1,6 +1,5 @@
 % aircraft needs N and params set
 function f = objfun(X, aircraft, type, M)
-    global eigval;
     N = aircraft.N; n_coeffs = 2*N+1;
     if nargin <= 3
         % to be used during trajectory optimisation
@@ -16,18 +15,13 @@ function f = objfun(X, aircraft, type, M)
             tf = X(3*n_coeffs+2,1); VR = X(3*n_coeffs+1,1);
             aircraft.tf = tf; aircraft.coeffs = coeffs;
             aircraft.VR = VR; 
-            
+           
             FTM_expo = get_FTM(aircraft, 'expo');
-            D = eig(FTM_expo); f = 0; param1 = 1; param2 = 10;
-            for i = 1:3
+            D = eig(FTM_expo); f = 0; param1 = 10; param2 = 10;
+             for i = 1:3
                  f = f + atan(param1*(abs(D(i)) - 1));
              end
             f = f + param2*VR;
-            max_eig = max(abs(D));
-            
-            if(isempty(eigval)), eigval = max_eig; end
-            if(eigval > max_eig), eigval = max_eig; aircraft.solution = X; end
-            
         end
         
     % to be used when estimating floquet expo via collocation (probably

@@ -1,6 +1,5 @@
 % aircraft needs N and params set
 function f = objfun(X, solution)
-    global eigval;
     N = solution.N; n_coeffs = 2*N+1;
 
     % to be used during trajectory optimisation
@@ -17,16 +16,18 @@ function f = objfun(X, solution)
         solution.tf = tf; solution.coeffs = coeffs;
         solution.VR = VR; 
 
-        FTM_expo = get_FTM(solution, 'expo');
+        % FTM by exponentials method
+         t = linspace(solution.tf, 0, 1000);
+         FTM_expo = eye(3); del_t = t(1)-t(2);
+         for i = 1:length(t)
+            Jk = get_jac(solution, t(i), 'FD'); Jk = Jk(1:3,1:3);
+            FTM_expo = FTM_expo*expm(Jk*del_t);
+         end
         D = eig(FTM_expo); f = 0; param1 = 1; param2 = 10;
         for i = 1:3
              f = f + atan(param1*(abs(D(i)) - 1));
          end
         f = f + param2*VR;
-        max_eig = max(abs(D));
-
-        if(isempty(eigval)), eigval = max_eig; end
-        if(eigval > max_eig), eigval = max_eig; solution.X = X; end
 
     end
         

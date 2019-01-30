@@ -21,7 +21,7 @@ function [aircraft, sol] = optimize_stability(aircraft, x0, p)
     lb(end-1,1) = 0; ub(end-1,1) = 100;
     lb(end,1) = 0; ub(end,1) = 150;
     
-    options = optimoptions('fmincon', 'Display', 'Iter', 'Algorithm', 'interior-point1', 'UseParallel', true);
+    options = optimoptions('fmincon', 'Display', 'Iter', 'Algorithm', 'sqp', 'UseParallel', true);
     options.MaxFunctionEvaluations = 100000;
     options.StepTolerance = 1e-15;
     options.MaxIterations = 10000;
