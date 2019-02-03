@@ -18,7 +18,7 @@ function [aircraft, sol] = optimize_stability(aircraft, x0, p)
     lb(1:3*(2*N+1),1) = -500*lb(1:3*(2*N+1),1);
     ub(1:3*(2*N+1),1) = 500*ub(1:3*(2*N+1),1);
     % bounds on VR and tf
-    lb(end-1,1) = 0; ub(end-1,1) = 100;
+    lb(end-1,1) = 0; ub(end-1,1) = 1.5*0.0826;
     lb(end,1) = 0; ub(end,1) = 150;
     
     options = optimoptions('fmincon', 'Display', 'Iter', 'Algorithm', 'sqp', 'UseParallel', true);

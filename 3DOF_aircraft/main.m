@@ -6,7 +6,7 @@ addpath('trajectory');
 addpath('task');
 addpath('constraint_funcs');
  
-load('solutions/trajectory_opt/expo_O_shaped.mat')
+%load('solutions/trajectory_opt/expo_O_shaped.mat')
 
 %[ac, sol] = optimize_stability(ac, [sol(1:end-2,1);sol(end,1)], p);
 [ac, sol] = optimize_stability(ac, sol, p);

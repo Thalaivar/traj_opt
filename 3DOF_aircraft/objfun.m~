@@ -17,9 +17,9 @@ function f = objfun(X, aircraft, type, M)
             aircraft.VR = VR; 
            
             FTM_expo = get_FTM(aircraft, 'expo');
-            D = eig(FTM_expo); f = 0; param1 = 10; param2 = 1; 
+            D = eig(FTM_expo); f = 0; param1 = ; param2 = 1;
              for i = 1:3
-                 f = f + atan(param1*((abs(D(i)))^(-1) - 1));
+                 f = f + atan(param1*(abs(D(i)) - 1));
              end
             f = f + param2*VR;
         end
