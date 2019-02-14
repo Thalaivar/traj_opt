@@ -6,7 +6,7 @@ function xguess = get_init_guess(type, N)
         y = -20*(2^0.5)*sin(2*pi*t/tf_0);
         z = -20*(1 - cos(2*pi*t/tf_0)) - 0.11;    
     elseif strcmp(type, 'eight')
-        VR_0 = 0.3; tf_0 = 20;
+        VR_0 = 0.1; tf_0 = 20;
         t = linspace(0, tf_0, 1000);
         x = 20*sin(4*pi*t/tf_0);                  
         y = 40*sqrt(2)*sin(2*pi*t/tf_0);

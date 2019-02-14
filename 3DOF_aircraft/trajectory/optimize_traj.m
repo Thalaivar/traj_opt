@@ -21,7 +21,7 @@ function [aircraft, sol] = optimize_traj(aircraft, x0, p)
     lb(end-1,1) = 0; ub(end-1,1) = 150;
     lb(end,1) = 0; ub(end,1) = 200;
     
-    options = optimoptions('fmincon', 'Display', 'iter', 'Algorithm', 'sqp', 'MaxFunctionEvaluations', 2000000, 'MaxIterations', 10000);
+    options = optimoptions('fmincon', 'Display', 'iter', 'Algorithm', 'interior-point', 'MaxFunctionEvaluations', 2000000, 'MaxIterations', 10000);
     options.StepTolerance = 1e-15;
     sol = fmincon(@(x) objfun(x, aircraft, 'traj'), xguess, [], [], [], [], lb, ub, @(x) constFun_traj(x, aircraft, 'traj'), options);
     

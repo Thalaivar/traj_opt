@@ -1,2 +1,6 @@
 trajectory_opt : contains solutions obtained when optimisation was done only on VR
 eigenvalue_opt : contains solutions obtained when optimisation was done for maximising eigenvalues (VR is constant)
+
+(10,1) -> 2.5173, 0.7197
+(1,1)  -> 2.5260, 0.7382
+(0.1,1) ->

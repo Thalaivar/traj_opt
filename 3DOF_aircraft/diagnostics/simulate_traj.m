@@ -2,10 +2,11 @@ addpath('../trajectory')
 addpath('../constraint_funcs')
 addpath('../floquet')
 addpath('../solutions')
+addpath('..')
 
-load('../solutions/lin_eight.mat')
+%load('../solutions/trajectory_opt/expo_O.mat')
 
-tspan = [ac.tf/4, 10*ac.tf];
+tspan = [ac.tf/4, 4*ac.tf];
 sig_0 = get_traj(tspan(1), ac.tf, ac.coeffs, ac.N);
 ac = ac.get_xu(sig_0);
 y0 = [ac.x(1);ac.x(3);ac.x(2);sig_0(1);sig_0(2);sig_0(3)];
@@ -30,3 +31,4 @@ rmpath('../solutions')
 rmpath('../trajectory')
 rmpath('../constraint_funcs')
 rmpath('../floquet')
+rmpath('..')

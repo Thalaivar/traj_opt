@@ -83,6 +83,9 @@ classdef aircraft
             gammadot = (L*cos(nu)/(obj.m*V)) - obj.g*cos(gamma)/V + Wxz*zdot*cos(chi)*sin(gamma)/V;
             
             ydot = [Vdot; chidot; gammadot; xdot; ydot; zdot];
+            if(imag(ydot) ~= 0)
+                ydot
+            end
         end
         
         function A = get_jac(obj, t, type)
