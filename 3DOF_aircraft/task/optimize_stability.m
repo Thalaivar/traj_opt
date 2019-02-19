@@ -18,12 +18,12 @@ function [aircraft, sol] = optimize_stability(aircraft, x0, p)
     lb(1:3*(2*N+1),1) = -500*lb(1:3*(2*N+1),1);
     ub(1:3*(2*N+1),1) = 500*ub(1:3*(2*N+1),1);
     % bounds on VR and tf
-    lb(end-1,1) = 0; ub(end-1,1) = 1.5*2.4819;
+    lb(end-1,1) = 0; ub(end-1,1) = 1.5*0.0845;
     lb(end,1) = 0; ub(end,1) = 150;
     
     options = optimoptions('fmincon', 'Display', 'Iter', 'Algorithm', 'sqp', 'UseParallel', true);
     options.MaxFunctionEvaluations = 100000;
-    options.StepTolerance = 1e-15;
+    options.StepTolerance = 1e-12;
     options.MaxIterations = 10000;
     sol = fmincon(@(x) objfun(x, aircraft, 'floq_new'), xguess, [], [], [], [], lb, ub, @(x) constFun_traj(x, aircraft, 'traj'), options);
     

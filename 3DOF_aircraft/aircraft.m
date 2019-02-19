@@ -72,6 +72,10 @@ classdef aircraft
             L = 0.5*obj.rho*obj.S*V^2*Cl;
             T = 0.5*obj.rho*obj.S*V^2*CT;
             
+            if(z >= 0)
+                z;
+            end
+            
              % wind model
             p_exp = obj.p;
             Wx = obj.VR*(-z)^p_exp;
@@ -83,9 +87,9 @@ classdef aircraft
             gammadot = (L*cos(nu)/(obj.m*V)) - obj.g*cos(gamma)/V + Wxz*zdot*cos(chi)*sin(gamma)/V;
             
             ydot = [Vdot; chidot; gammadot; xdot; ydot; zdot];
-            if(imag(ydot) ~= 0)
-                ydot
-            end
+%             if(imag(ydot) ~= 0)
+%                 ydot
+%             end
         end
         
         function A = get_jac(obj, t, type)
