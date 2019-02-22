@@ -14,23 +14,6 @@ y0 = [ac.x(1);ac.x(3);ac.x(2);sig_0(1);sig_0(2);sig_0(3)];
 options = odeset('AbsTol', 1e-11, 'RelTol', 1e-11, 'Events', @(t,y) z_event(t,y));
 sol = ode15s(@(t,y) ac.non_flat_model(t, y), tspan, y0, options);
 t1 = sol.x'; y1 = sol.y';
-options = odeset('Events', @(t,y) z_event(t,y));
-sol = ode15s(@(t,y) ac.non_flat_model(t, y), tspan, y0, options);
-t2 = sol.x'; y2 = sol.y';
-
-% get number of complete rounds
-n_max_1 = floor(t1/ac.tf); n_max_2 = floor(t2/ac.tf); 
-% nominal trajectory
-n_points = 1500;
-t_nom = linspace(ac.tf/(n_points-1), ac.tf, n_points);
-t_ref = zeros((n_max_1+1)*n_points+1,1);
-nom_traj = zeros(6, length(t_ref));
-for i = 1:length(t_ref){
-    
-    }
-end
-
-
 % 
 % % interpolate to uniform grid
 % n_max = floor(t(end)/ac.tf);
