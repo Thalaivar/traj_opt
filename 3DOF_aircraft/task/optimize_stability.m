@@ -1,11 +1,14 @@
 % to generate periodic traj with optimal stability
 % aircraft should have VR, N and params set
-function [aircraft, sol] = optimize_stability(aircraft, x0, p, ref_ac)    
+function [aircraft, sol] = optimize_stability(aircraft, x0, p)    
     % dec vec = [ax0, ... , ax1_N,ax2_1, ... , ax2_N, ay0, ... , ay2_N, az0, ... ,az2_N, tf]
     % a$1_i corresponds to teh coefficient of the i'th cosine harmonic
     % a$2_i corresponds to teh coefficient of the i'th sine harmonic
     xguess = x0;
     aircraft.p = p; N = aircraft.N;
+    
+    % min height obtained
+    zmax = -3.5466;
     
     % if x0 was empty, it means we are running for first time
     if isempty(xguess)
@@ -21,13 +24,13 @@ function [aircraft, sol] = optimize_stability(aircraft, x0, p, ref_ac)
     lb(end-1,1) = 0; ub(end-1,1) = 1.5*3.5806;
     lb(end,1) = 0; ub(end,1) = 150;
     
-    options = optimoptions('fmincon', 'Display', 'Iter', 'Algorithm', 'sqp', 'UseParallel', true);
+    options = optimoptions('fmincon', 'Display', 'Iter', 'Algorithm', 'interior-point', 'UseParallel', true);
     options.MaxFunctionEvaluations = 100000;
     options.StepTolerance = 1e-12;
     options.MaxIterations = 10000;
-    sol = fmincon(@(x) objfun(x, aircraft, 'floq_new'), xguess, [], [], [], [], lb, ub, @(x) constFun_traj(x, aircraft, 'traj', ref_ac), options);
+    sol = fmincon(@(x) objfun(x, aircraft, 'floq_new'), xguess, [], [], [], [], lb, ub, @(x) constFun_traj(x, aircraft, 'traj', []), options);
     
     n = (2*N+1);
     aircraft.coeffs = [sol(1:n,1), sol(n+1:2*n,1), sol(2*n+1:3*n,1)];
-    aircraft.tf = sol(3*n+2,1); aircraft.VR = sol(3*n+1,1);
+    aircraft.tf = sol(3*n+1,1); %aircraft.VR = sol(3*n+1,1);
 end

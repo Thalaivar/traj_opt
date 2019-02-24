@@ -12,18 +12,18 @@ function f = objfun(X, aircraft, type, M)
             coeffs_y = X(n_coeffs+1:2*n_coeffs,1);
             coeffs_z = X(2*n_coeffs+1:3*n_coeffs,1);
             coeffs = [coeffs_x,coeffs_y, coeffs_z];
-            tf = X(3*n_coeffs+2,1); VR = X(3*n_coeffs+1,1);
+            tf = X(3*n_coeffs+2,1);  VR = X(3*n_coeffs+1,1);
             aircraft.tf = tf; aircraft.coeffs = coeffs;
             aircraft.VR = VR; 
            
             FTM_expo = get_FTM(aircraft, 'expo');
-            D = eig(FTM_expo); f = 0; param1 = 10; param2 = 0.1; % 10, 1
+            D = eig(FTM_expo); f = 0; param1 = 20; param2 = 0.1; % 10, 1
              for i = 1:3
-                % f = f + atan(param1*(abs(D(i))- 1));
-                 f = f + atan(param1*((abs(D(i)))^(-1)- 1));
+                 f = f + atan(param1*(abs(D(i))- 1));
+                % f = f + atan(param1*((abs(D(i)))^(-1)- 1));
              end
-            f = f + param2*VR;
-            end
+            f = f + param2*aircraft.VR;
+        end
         
     % to be used when estimating floquet expo via collocation (probably
     % obsolete)

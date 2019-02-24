@@ -1,4 +1,4 @@
- %clearvars 
+%clearvars 
 
 addpath('solutions');
 addpath('floquet');
@@ -9,7 +9,8 @@ addpath('constraint_funcs');
 %load('solutions/trajectory_opt/lin_O.mat')
 
 %[ac, sol] = optimize_stability(ac, [sol(1:end-2,1);sol(end,1)], p);
-[ac, sol] = optimize_stability(ac, sol, p, ref_ac);
+%xguess = [sol(1:end-2); sol(end,1)];
+[ac, sol] = optimize_stability(ac, sol, p);
 
 %ac = aircraft(); p = 0.25;
 %ac.N = 5;
