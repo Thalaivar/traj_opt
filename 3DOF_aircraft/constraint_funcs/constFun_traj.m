@@ -1,7 +1,7 @@
 % to be used when optimising for periodic trajectories ONLY
 % NOTE: 
 %   aircraft needs N and params set (and VR for stability optimisation)
-function [c , ceq] = constFun_traj(X, aircraft, type, zmax_nom)
+function [c , ceq] = constFun_traj(X, aircraft, type, M)
        N = aircraft.N;
        n_coeffs = 2*N+1;
        coeffs_x = X(1:n_coeffs,1);
@@ -16,7 +16,7 @@ function [c , ceq] = constFun_traj(X, aircraft, type, zmax_nom)
            tf = X(3*n_coeffs+1,1); aircraft.tf = tf;
        end
        
-       M = 1000; % no. of points at which dynamic constraints are imposed
+     %  M = 1000; % no. of points at which dynamic constraints are imposed
 
        c = zeros(16*M,1);
        t = linspace(0, tf, M);
@@ -58,16 +58,18 @@ function [c , ceq] = constFun_traj(X, aircraft, type, zmax_nom)
            c(j+15,1) = y - 500;  % 500
        end
         
-        if(~isempty(zmax_nom))
-         % matching the zmin for nominal and unstable solution
-           t = linspace(0, tf, 1000);
-           zmax = -Inf;
-           for i = 1:length(t)
-               sig = get_traj(t(i), tf, coeffs, N);
-               if sig(3) >  zmax, zmax = sig(3); end
-           end
-           ceq = zmax - zmax_nom;
-        else, ceq = [];
-        end 
-       
+%         if(~isempty(zmax_nom))
+%          % matching the zmin for nominal and unstable solution
+%            t = linspace(0, tf, 1000);
+%            zmax = -Inf;
+%            for i = 1:length(t)
+%                sig = get_traj(t(i), tf, coeffs, N);
+%                if sig(3) >  zmax, zmax = sig(3); end
+%            end
+%            ceq = zmax - zmax_nom;
+%         else, ceq = [];
+%         end 
+%        
+
+        ceq = [];
 end
