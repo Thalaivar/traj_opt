@@ -52,10 +52,10 @@ function [c , ceq] = constFun_traj(X, aircraft, type, M)
            c(j+10,1) = -pi/4 - gamma; % -0.5549
            c(j+11,1) = gamma - pi/4; % 0.4011
            % x and y constraints
-           c(j+12,1) = -500 - x; % -500
-           c(j+13,1) = x - 500;  % 500
-           c(j+14,1) = -500 - y; % -500 
-           c(j+15,1) = y - 500;  % 500
+           c(j+12,1) = -500 - x; 
+           c(j+13,1) = x - 500;  
+           c(j+14,1) = -500 - y;  
+           c(j+15,1) = y - 500; 
        end
         
 %         if(~isempty(zmax_nom))

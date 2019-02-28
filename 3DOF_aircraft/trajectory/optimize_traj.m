@@ -1,6 +1,6 @@
 % to generate optimal periodic trajectories
 % aircraft should have N, params set
-function [aircraft, sol] = optimize_traj(aircraft, x0, p)    
+function [aircraft, sol] = optimize_traj(aircraft, x0, p, M)    
     % dec vec = [ax0, ... , ax1_N,ax2_1, ... , ax2_N, ay0, ... , ay2_N, az0, ... ,az2_N, VR, tf]
     % a$1_i corresponds to teh coefficient of the i'th cosine harmonic
     % a$2_i corresponds to teh coefficient of the i'th sine harmonic
@@ -23,7 +23,7 @@ function [aircraft, sol] = optimize_traj(aircraft, x0, p)
     
     options = optimoptions('fmincon', 'Display', 'iter', 'Algorithm', 'interior-point', 'MaxFunctionEvaluations', 2000000, 'MaxIterations', 10000);
     options.StepTolerance = 1e-15;
-    sol = fmincon(@(x) objfun(x, aircraft, 'traj'), xguess, [], [], [], [], lb, ub, @(x) constFun_traj(x, aircraft, 'traj'), options);
+    sol = fmincon(@(x) objfun(x, aircraft, 'traj'), xguess, [], [], [], [], lb, ub, @(x) constFun_traj(x, aircraft, 'traj', M), options);
     
     n = (2*N+1);
     aircraft.coeffs = [sol(1:n,1), sol(n+1:2*n,1), sol(2*n+1:3*n,1)];

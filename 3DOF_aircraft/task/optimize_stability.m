@@ -6,10 +6,7 @@ function [aircraft, sol] = optimize_stability(aircraft, x0, p, M)
     % a$2_i corresponds to teh coefficient of the i'th sine harmonic
     xguess = x0;
     aircraft.p = p; N = aircraft.N;
-    
-    % min height obtained
-    zmax = -3.5466;
-    
+   
     % if x0 was empty, it means we are running for first time
     if isempty(xguess)
         xguess = get_init_guess('circle', N);
@@ -23,6 +20,13 @@ function [aircraft, sol] = optimize_stability(aircraft, x0, p, M)
     % bounds on VR and tf
     lb(end-1,1) = 0; ub(end-1,1) = 1.5*2.4819;
     lb(end,1) = 0; ub(end,1) = 150;
+
+%     lb = ones(3*(2*N+1)+1,1); ub = ones(3*(2*N+1)+1,1);
+%     % bounds on coefficients
+%     lb(1:3*(2*N+1),1) = -500*lb(1:3*(2*N+1),1);
+%     ub(1:3*(2*N+1),1) = 500*ub(1:3*(2*N+1),1);
+%     % bounds on tf
+%     lb(end,1) = 0; ub(end,1) = 150;
     
     options = optimoptions('fmincon', 'Display', 'Iter', 'Algorithm', 'interior-point', 'UseParallel', true);
     options.MaxFunctionEvaluations = 100000;
