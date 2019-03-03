@@ -33,17 +33,17 @@ function [c , ceq] = constFun_traj(X, aircraft, type, M)
            CT = aircraft.u(3); gamma = aircraft.x(2);
 
            % Cl constraints
-           c(j,1) = -0.2 - Cl;
-           c(j+1,1) = Cl - 1.17;
+           c(j,1) = -0.2 - Cl; % -0.2
+           c(j+1,1) = Cl - 1.17; % 1.17
            % V contraints
            c(j+2,1) = 10 - V;      % 12.9372
            c(j+3,1) = V - 80; % 31.1240
            % nu constraints
-           c(j+4,1) = -pi/3 - nu;
+           c(j+4,1) = -pi/3 - nu; % +- pi/3
            c(j+5,1) = nu - pi/3;
            % CT constraints
-           c(j+6,1) = -1e-4 - CT;
-           c(j+7,1) = CT - 1e-4;
+           c(j+6,1) = -1e-4 - CT; % +- 1e-4
+           c(j+7,1) = CT - 1e-4; 
            % hmin constraints
            hmin = 0.15;
            c(j+8,1)  = z + 0.5*aircraft.b*sin(nu) + hmin;

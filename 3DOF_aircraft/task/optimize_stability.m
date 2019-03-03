@@ -31,7 +31,7 @@ function [aircraft, sol] = optimize_stability(aircraft, x0, p, M)
     options = optimoptions('fmincon', 'Display', 'Iter', 'Algorithm', 'interior-point', 'UseParallel', true);
     options.MaxFunctionEvaluations = 100000;
     options.StepTolerance = 1e-12;
-    options.MaxIterations = 10000;
+    options.MaxIterations = 1000;
     sol = fmincon(@(x) objfun(x, aircraft, 'floq_new'), xguess, [], [], [], [], lb, ub, @(x) constFun_traj(x, aircraft, 'traj', M), options);
     
     n = (2*N+1);

@@ -1,4 +1,4 @@
-%clearvars 
+ %clearvars 
 
 addpath('solutions');
 addpath('floquet');
