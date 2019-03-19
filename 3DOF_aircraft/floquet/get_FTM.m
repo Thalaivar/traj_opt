@@ -10,11 +10,19 @@ function FTM = get_FTM(aircraft, type)
     elseif strcmp(type, 'expo')
          % FTM by exponentials method
          t = linspace(aircraft.tf, 0, 1000);
-         FTM = eye(3); del_t = t(1)-t(2);
+         FTM = eye(6); del_t = t(1)-t(2);
          for i = 1:length(t)
-            Jk = aircraft.get_jac(t(i), 'FD'); Jk = Jk(1:3,1:3);
+            Jk = aircraft.get_jac(t(i), 'FD');
             FTM = FTM*expm(Jk*del_t);
          end
+    elseif strcmp(type, 'friedmann')
+        t = linspace(0, aircraft.tf, 1000);
+        h = t(2) - t(1);
+        FTM = eye(6);
+        for i = 1:length(t)-2
+            K = friedmann_K(h, (t(end) - i*h), aircraft);
+            FTM = FTM*K;
+        end
     end
      % model linearised about nominal trajectory
      function ydot = model(t, y, aircraft)

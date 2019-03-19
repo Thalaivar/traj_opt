@@ -7,11 +7,7 @@ function [t, y] = RK4(model, tspan, y0, h)
     curr_t = tspan(1); curr_y = y0;
     i = 2;
     while curr_t + h <= tspan(2)
-        % for notation, refer to wiki page on Runge-Kutta methods
-          if i == 14535
-            i
-          end
-        
+        % for notation, refer to wiki page on Runge-Kutta methods        
         k1 = h*model(curr_t, curr_y);
         k2 = h*model(curr_t + 0.5*h, curr_y + 0.5*k1);
         k3 = h*model(curr_t + 0.5*h, curr_y + 0.5*k2);

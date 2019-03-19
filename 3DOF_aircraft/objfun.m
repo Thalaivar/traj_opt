@@ -1,7 +1,7 @@
 % aircraft needs N and params set
-function f = objfun(X, aircraft, type, M)
+function f = objfun(X, aircraft, type, params, M)
     N = aircraft.N; n_coeffs = 2*N+1;
-    if nargin <= 3
+    if nargin <= 4
         % to be used during trajectory optimisation
         if strcmp(type, 'traj')
             VR = X(3*n_coeffs+1,1);
@@ -18,14 +18,27 @@ function f = objfun(X, aircraft, type, M)
 %             tf = X(3*n_coeffs+1,1);
 %             aircraft.tf = tf; aircraft.coeffs = coeffs; 
            
-            FTM_expo = get_FTM(aircraft, 'expo');
-            D = eig(FTM_expo); f = 0; param1 = 10; param2 = 0.1; % 10, 1
-             for i = 1:3
-                 f = f + atan(param1*(abs(D(i))- 1));
-                % f = f + atan(param1*((abs(D(i)))^(-1)- 1));
-             end
-            f = f + param2*aircraft.VR;
-        end
+            FTM_expo = get_FTM(aircraft, 'friedmann');
+            f = 0; %param1 = 0.1; param2 = 1; % 10, 0.1
+            if(aircraft.p ~= 1)
+                FTM_expo = [FTM_expo(1:3,1:3),FTM_expo(1:3,6);FTM_expo(6,1:3),FTM_expo(6,6)];
+                D = eig(FTM_expo);
+                for i = 1:4
+                     f = f + atan(params(1)*(abs(D(i))- 1));
+                    % f = f + atan(param1*((abs(D(i)))^(-1)- 1));
+                end
+            else
+                FTM_expo = FTM_expo(1:3,1:3);
+                D = eig(FTM_expo);
+                for i = 1:3
+                     f = f + atan(params(1)*(abs(D(i))- 1));
+                    % f = f + atan(param1*((abs(D(i)))^(-1)- 1));
+                end
+            end
+            
+            f = f + params(2)*aircraft.VR;
+        
+         end
         
     % to be used when estimating floquet expo via collocation (probably
     % obsolete)

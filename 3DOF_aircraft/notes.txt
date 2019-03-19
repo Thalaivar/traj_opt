@@ -1,3 +1,14 @@
-1. need to verify analytic jacobian
-2. 100 in atan did not work for linear circular initial guess with sqp. infeasible solution with high FOO. param = 1
-2. 10 in atan did not work for linear circular initial guess with sqp. infeasible solution with high FOO. param = 1
+%   params  %   VR  %   max(abs(D))
+    10,0.1    3.7210      0.7587
+    0.1,0.1   2.8770      0.7290
+    1, 0.1    3.6906      1.0632
+    10, 1     2.6692      1.0856
+
+% naming convention: TSCXX_YY_M.mat
+    T -> type of wind (E : exponential, L : wind)
+    S -> shape of trajectory (O : O shaped, E : Eight shaped)
+    C -> characteristic (S : stability optimised, U : instability optimised, T : trajectory optimised)
+    XX -> value for param1 (01 = 0.01, 10 = 10)
+    YY -> value for param2
+    M  -> resolution
+    
