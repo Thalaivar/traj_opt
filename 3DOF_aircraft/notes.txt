@@ -11,4 +11,6 @@
     XX -> value for param1 (01 = 0.01, 10 = 10)
     YY -> value for param2
     M  -> resolution
-    
+
+When param1 increased from 10 -> 50
+    stability increases then decreases but is unstable

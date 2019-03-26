@@ -56,20 +56,7 @@ function [c , ceq] = constFun_traj(X, aircraft, type, M)
            c(j+13,1) = x - 500;  
            c(j+14,1) = -500 - y;  
            c(j+15,1) = y - 500; 
-       end
-        
-%         if(~isempty(zmax_nom))
-%          % matching the zmin for nominal and unstable solution
-%            t = linspace(0, tf, 1000);
-%            zmax = -Inf;
-%            for i = 1:length(t)
-%                sig = get_traj(t(i), tf, coeffs, N);
-%                if sig(3) >  zmax, zmax = sig(3); end
-%            end
-%            ceq = zmax - zmax_nom;
-%         else, ceq = [];
-%         end 
-%        
+       end 
 
         ceq = [];
 end

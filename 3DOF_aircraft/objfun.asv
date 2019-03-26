@@ -21,11 +21,8 @@ function f = objfun(X, aircraft, type, params, stab_type, M)
                 FTM_expo = [FTM_expo(1:3,1:3),FTM_expo(1:3,6);FTM_expo(6,1:3),FTM_expo(6,6)];
                 D = eig(FTM_expo);
                 for i = 1:4
-                    if strcmp(stab_type, 'stable')
-                         f = f + atan(params(1)*(abs(D(i))- 1));
-                    elseif strcmp(stab_type, 'unstable')
-                        f = f + atan(params(1)*((abs(D(i)))^(-1)- 1));
-                    end
+                    f = f + atan(params(1)*(abs(D(i))- 1));
+%                     f = f + atan(params(1)*((abs(D(i)))^(-1)- 1));
                 end
             else
                 FTM_expo = FTM_expo(1:3,1:3);

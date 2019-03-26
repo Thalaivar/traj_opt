@@ -55,7 +55,9 @@ function visualisation(choice, aircraft)
             X(i,:) = [sigma(1),-sigma(2),-sigma(3)];
         end
         
-        comet3(X(:,1), X(:,2), X(:,3))
+        plot3(X(:,1), X(:,2), X(:,3), 'r')
+        hold on
+        plot3(X(1,1), X(1,2), X(1,3), 'sm');
         xlabel('x'); ylabel('y'); zlabel('z');
         grid on 
         axis equal
