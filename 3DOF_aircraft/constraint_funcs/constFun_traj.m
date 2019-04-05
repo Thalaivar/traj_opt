@@ -16,8 +16,8 @@ function [c , ceq] = constFun_traj(X, aircraft, type, M)
            tf = X(3*n_coeffs+1,1); aircraft.tf = tf;
        end
        
-     %  M = 1000; % no. of points at which dynamic constraints are imposed
-
+       ceq = [];
+       
        c = zeros(16*M,1);
        t = linspace(0, tf, M);
        for i = 1:M
@@ -55,8 +55,25 @@ function [c , ceq] = constFun_traj(X, aircraft, type, M)
            c(j+12,1) = -500 - x; 
            c(j+13,1) = x - 500;  
            c(j+14,1) = -500 - y;  
-           c(j+15,1) = y - 500; 
+           c(j+15,1) = y - 500;
        end 
-
-        ceq = [];
+       
+       
+%        t = linspace(0, aircraft.tf, 1000);
+%        state = zeros(length(t), 6);
+%        for i = 1:length(t)
+%         sig = get_traj(t(i), aircraft.tf, aircraft.coeffs, aircraft.N);
+%         aircraft = aircraft.get_xu(sig);
+%         state(i,:) = [aircraft.x(1), aircraft.x(3), aircraft.x(2), sig(1), sig(2), sig(3)];
+%        end
+%        
+%        E_a = 0;
+%        for i = 1:length(t)
+%            E_a = E_a + 0.5*aircraft.m*(state(i,1)^2) + aircraft.m*aircraft.g*(-state(i,6));
+%        end
+%        
+%        E_a = E_a/length(t);
+%        
+%        c(end+1) = E_a - 1850;
+%        c(end+1) = 1300 - E_a;
 end

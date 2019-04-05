@@ -13,7 +13,7 @@ function [aircraft, sol] = optimize_stability(aircraft, x0, p, M, params, type, 
         %xguess = [xguess(1:end-2);xguess(end,1)];
     end
     
-    if strcmp(type{1}, 'stability') 
+    if strcmp(type{2}, 'stability') 
         lb = ones(3*(2*N+1)+1,1); ub = ones(3*(2*N+1)+1,1);
         % bounds on coefficients
         lb(1:3*(2*N+1),1) = -500*lb(1:3*(2*N+1),1);
@@ -33,7 +33,7 @@ function [aircraft, sol] = optimize_stability(aircraft, x0, p, M, params, type, 
     options = optimoptions('fmincon', 'Display', 'Iter', 'Algorithm', 'sqp', 'UseParallel', true);
     options.MaxFunctionEvaluations = 100000;
     options.StepTolerance = 1e-12;
-    options.MaxIterations = 400;
+    options.MaxIterations = 10000;
     sol = fmincon(@(x) objfun(x, aircraft, type{1}, params, stab_type), xguess, [], [], [], [], lb, ub, @(x) constFun_traj(x, aircraft, type{2}, M), options);
     
     n = (2*N+1);

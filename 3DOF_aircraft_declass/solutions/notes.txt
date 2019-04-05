@@ -1,2 +1,0 @@
-trajectory_opt : contains solutions obtained when optimisation was done only on VR
-eigenvalue_opt : contains solutions obtained when optimisation was done for maximising eigenvalues (VR is constant)

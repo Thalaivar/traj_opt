@@ -12,5 +12,8 @@
     YY -> value for param2
     M  -> resolution
 
-When param1 increased from 10 -> 50
-    stability increases then decreases but is unstable
+%   actual      -       rough
+    0.7851              0.8031
+    0.8449              0.8651
+    0.7769              0.8157
+    2.1431              2.1200

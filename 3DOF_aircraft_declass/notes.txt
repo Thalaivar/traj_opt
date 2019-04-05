@@ -1,3 +1,0 @@
-1. need to verify analytic jacobian
-2. 100 in atan did not work for linear circular initial guess with sqp. infeasible solution with high FOO. param = 1
-2. 10 in atan did not work for linear circular initial guess with sqp. infeasible solution with high FOO. param = 1
