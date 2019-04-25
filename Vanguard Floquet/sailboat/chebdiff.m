@@ -1,4 +1,4 @@
-function [D, x] = cheb_diff(N)        
+function [D, x] = chebdiff(N)        
    % create chebyshev points
    if N == 0
        x = 1;

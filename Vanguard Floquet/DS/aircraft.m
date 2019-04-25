@@ -136,7 +136,7 @@ classdef aircraft
                     % get states at current nominal point
                     sig = get_traj(t, obj.tf, obj.coeffs, obj.N);
                     obj = obj.get_xu(sig);
-                    h = 1e-4; % perturbation
+                    h = 1e-9; % perturbation
                     x0 = [obj.x(1); obj.x(3); obj.x(2); sig(1); sig(2); sig(3)];
                     f1 = obj.non_flat_model(t, x0 - h*I(:,i)); f2 = obj.non_flat_model(t, x0 + h*I(:,i));
                     A(:,i) = (f2-f1)/(2*h);
