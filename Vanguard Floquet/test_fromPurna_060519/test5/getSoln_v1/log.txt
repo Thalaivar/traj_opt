@@ -1,0 +1,7 @@
+19/04/19
+imposing a constraint on x(1) works.
+
+11/04/19
+
+use differentiation matrix within the residue function
+
