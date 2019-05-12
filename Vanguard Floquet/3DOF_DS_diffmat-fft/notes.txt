@@ -1,0 +1,10 @@
+12/05/219
+
+Revived!
+
+28/12/17
+
+Differential flatness based 3dof DS trajectory optimization using spectral differentiation matrix 
+and fft.
+
+This code is slower and less efficient than its FS counterpart.
