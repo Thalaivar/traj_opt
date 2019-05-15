@@ -1,4 +1,4 @@
-classdef aircraft
+ classdef aircraft
     properties
         m = 4.5;
         rho = 1.225;

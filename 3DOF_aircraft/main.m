@@ -5,7 +5,7 @@ addpath('task');
 addpath('constraint_funcs');
 
 % clearvars
-load('D:\ranjth_mohan\traj_opt\3DOF_aircraft\solutions\trajectory_opt\EOTXX_YY_50.mat')
+load('solutions\trajectory_opt\EOTXX_YY_50.mat')
 % load('EOS01_01_50.mat')
 ac.p = 0.25;
 ac.VR = ac.VR + 0.5;

@@ -2,6 +2,7 @@
 % http://www.chebfun.org/examples/ode-linear/Floquet.html
 
 clear all
+addpath('../')
 
 global d
 d = 2;
@@ -29,6 +30,20 @@ eigM = exp(eigE*T);
 FTM = get_FTM(t);
 FE = log(eig(FTM))/T;
 FM = eig(FTM);
+
+figure
+hold on
+p1 = plot(real(eigE),imag(eigE),'xm');
+p2 = plot(real(FE),imag(FE),'or','LineWidth',1,'MarkerSize',10);
+limSet = 1.2*max(abs(real(eigE)));
+xlim([-limSet,limSet]);
+title_str1 = horzcat('Coupled Oscillators Floquent Exponents');
+title_str2 = horzcat('N = ',num2str(N));
+title({title_str1,title_str2});
+grid minor
+legend([p1,p2],{'Spectral FE','Time-evolved FE'});
+
+rmpath('../')
 
 function A = sysModel(t)
      A = [-1 + 1.5*(cos(t))^2, 1 - 1.5*sin(t)*cos(t);

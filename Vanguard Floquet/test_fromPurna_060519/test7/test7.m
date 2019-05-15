@@ -1,10 +1,11 @@
 % 01/05/2019
 clear all
-
+close all
+addpath('../')
 global d a
 a = 0.15;
 d = 4;
-N =  4;
+N = 50;
 T = pi;
 
 [D, x] = fourierDiff(N);
@@ -104,6 +105,8 @@ title({title_str1,title_str2});
 grid minor
 legend([p1,p2],{'Spectral FE','Time-evolved FE'});
 
+estimated_FE = identify_floquet(eigE, N, prm.T);
+scatter(real(estimated_FE), imag(estimated_FE), 'sb', 'LineWidth', 1.25, 'DisplayName', 'Estimated FE')
 %% Periodic Eigenvectors
 
 % ff1 = figure;
@@ -145,14 +148,16 @@ legend([p1,p2],{'Spectral FE','Time-evolved FE'});
 % title('Im(u_2)')
 % xlim([0,t(end)]);
 
+rmpath('../')
+
 %%
 
 function A = sysModel(t)
 global a
-    A = [             0, 1,               0, 0;
-        -(2+a*cos(2*t)), 0,               1, 0;
-                      0, 0,               0, 1;
-                      1, 0, -(2+a*cos(2*t)), 0];
+    A = [      sin(2*t), 1,               0, sin(2*t);
+        -(2+a*cos(2*t)), 0,               1,        0;
+                      0, 0,               0,        1;
+                      1, 0, -(2+a*cos(2*t)),        0];
 end
 
 % to calculate FTM

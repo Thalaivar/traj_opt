@@ -1,6 +1,6 @@
 % 30/04/2019
 clear all
-
+close all
 addpath('./getSoln_v1/results');
 
 % load solnData_A-0p04-0p4
@@ -15,6 +15,7 @@ load solnData_A-0p01-0p8
 global d
 d = 2;
 N =  600;
+
 T = solnData.T;
 
 [D, x] = fourierDiff(N);
@@ -66,6 +67,7 @@ end
 
 save('eigData','FE','eigE','PE','N','d','solnData')
 
+estimated_FE = identify_floquet(eigE, N, 4, T);
 rmpath('./getSoln_v1/results');
 
 %% FM
@@ -116,7 +118,7 @@ title_str2 = horzcat('N = ',num2str(N));
 title({title_str1,title_str2});
 grid minor
 legend([p1,p2,p3],{'Spectral FE','Time-evolved FE','Pseudo-analytic FE'});
-
+scatter(real(estimated_FE), imag(estimated_FE), 'sb', 'LineWidth', 1.25, 'DisplayName', 'Estimated FE')
 %% Periodic Eigenvectors
 
 % ff1 = figure;
