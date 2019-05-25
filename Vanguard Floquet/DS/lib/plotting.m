@@ -6,6 +6,13 @@ function plotting(X, p, type)
     end
     [~,x] = fourierdiff(N);
     t = X(8*N+1,1)*x/(2*pi);
+    
+    if strcmp(type, 'circle')
+        chiLinearTerm = X(8*N+3);
+        for i = 1:N
+            X(N+i) = X(N+i) + chiLinearTerm*t(i);
+        end
+    end
     if p == 1
         profile = 'linear';
     else

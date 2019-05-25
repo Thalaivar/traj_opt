@@ -2,49 +2,85 @@ addpath('lib\')
 
 clearvars
 close all
-load('EET_200.mat')
-x = zeros(N, 4);
-u = zeros(N, 3);
-for i = 1:9
-    j = (i-1)*N + 1;
-    if i <= 6
-        x(:,i) = sol(j:j+N-1,1);
-    else
-        u(:,i-6) = sol(j:j+N-1,1);
+% load('diff_flat_discrete\temp2.mat')
+% load('diff_flat_discrete\solutions\maxObjFun\SEE60_diffWind.mat')
+% load('diff_flat_discrete\solutions\sumObjFun\SEE_60_circleIG.mat')
+load('full_state_discrete\solutions\trajectoryOptimized\EE60.mat')
+% load('full_state_discrete\Freidmann_SEE60_diffWind.mat')
+type = 'full-state';
+trajShape = 'eight';
+%% make state and control matrices
+if strcmp(type, 'full-state')
+    x = zeros(N, 6);
+    u = zeros(N, 2);
+    for i = 1:8
+        j = (i-1)*N + 1;
+        if i <= 6
+            x(:,i) = sol(j:j+N-1,1);
+        else
+            u(:,i-6) = sol(j:j+N-1,1);
+        end
     end
+    T = sol(8*N+1,1); VR = sol(8*N+2,1);
+    [~,t] = fourierdiff(N);
+    t = T*t/(2*pi);
+    if strcmp(trajShape, 'circle')
+        chiLinearTerm = sol(8*N+3);
+        for i = 1:N
+            x(i,2) = x(i,2) + chiLinearTerm*t(i);
+        end
+    end
+    
+elseif strcmp(type, 'diff-flat-colloc')
+    T = sol(3*N+1); VR = sol(3*N+2);
+    diffFac = 2*pi/T;
+    
+    [D,t] = fourierdiff(N); t = T*t/(2*pi);
+    column2 = [-(N^2)/12-1/6, -((-1).^(1:(N-1)))./(2*(sin((1:(N-1))*pi/N)).^2)];
+    DD = toeplitz(column2,column2([1, N:-1:2])); 
+    x = [sol(1:N), sol(N+1:2*N), sol(2*N+1:3*N)];
+    dx = [diffFac*D*x(:,1), diffFac*D*x(:,2), diffFac*D*x(:,3)];
+    ddx = [(diffFac^2)*DD*x(:,1), (diffFac^2)*DD*x(:,2), (diffFac^2)*DD*x(:,3)];
+    
+    state = zeros(N,3); u = zeros(N,3);
+    for i = 1:N
+        [xx, uu] = diffFlatModel([x(i,:);dx(i,:);ddx(i,:)], p, VR);
+        state(i,:) = xx; u(i,:) = uu;
+    end
+    x = [state, x];
+    
 end
-T = sol(9*N+1,1); VR = sol(9*N+2,1);
 traj_data.T = T; traj_data.VR = VR;
 traj_data.state = x; traj_data.control = u; traj_data.p = p;
+traj_data.t = t;
 %% spectral floquet
 global d;
-NN = 150;
-d = 6;
-[D, x] = fourierdiff(NN);
+n_spectral = N;
+d = 4;
+[D, x] = fourierdiff(n_spectral);
 t = x*T/(2*pi);
-traj_data.t = t;
-Dmat = zeros(d*NN);
-Mmat = zeros(d*NN);
-for i = 1:NN
+Dmat = zeros(d*n_spectral);
+Mmat = zeros(d*n_spectral);
+for i = 1:n_spectral
     A = sysModel(t(i), traj_data);
     for j = 1:d
        for k = 1:d
-            Mmat(i+(j-1)*NN,(k-1)*NN+i) = A(j,k); 
+            Mmat(i+(j-1)*n_spectral,(k-1)*n_spectral+i) = A(j,k); 
        end
-       Dmat((j-1)*NN+1:j*NN,(j-1)*NN+1:j*NN) = D*(2*pi/T);
+       Dmat((j-1)*n_spectral+1:j*n_spectral,(j-1)*n_spectral+1:j*n_spectral) = D*(2*pi/T);
     end
 end
 
 [eigVec,eigE] = eig(Dmat-Mmat);
 residVal = norm((Dmat-Mmat)*eigVec-eigVec*eigE);
-display(residVal)
+% display(residVal)
 eigE = -1*diag(eigE);
 eigM = exp(eigE*T);
-
 FTM = get_FTM(t, traj_data, 0);
 FM = eig(FTM);
 FE = log(FM)/T;
 
+%% plotting
 figure
 hold on
 p1 = plot(real(eigE),imag(eigE),'xm');
@@ -52,73 +88,52 @@ p2 = plot(real(FE),imag(FE),'or','LineWidth',1,'MarkerSize',10);
 limSet = 1.2*max(abs(real(eigE)));
 xlim([-limSet,limSet]);
 if p == 1
-    traj_type = 'linear';
+      traj_type = 'linear';
 else
     traj_type = 'exponential';
 end
 title_str1 = ['Dynamic soaring in ', traj_type, ' profile. '];
-title_str2 = ['N = ' num2str(NN)];
+title_str2 = ['N = ' num2str(n_spectral)];
 title([title_str1 title_str2]);
 grid minor
 legend([p1,p2],{'Spectral FE','Time-evolved FE'});
 
 estimated_FE = identify_floquet(eigE, N, traj_data.T);
-scatter(real(estimated_FE), imag(estimated_FE), 'sb', 'LineWidth', 1.25, 'DisplayName', 'Estimated FE')
+scatter(real(estimated_FE), imag(estimated_FE), 75, 'sb', 'LineWidth', 1.25, 'DisplayName', 'Estimated FE')
 %% supporting functions
-    function A = sysModel(t, traj_data)
-    prm.m = 4.5;
-    prm.S = 0.473;
-    prm.CD0 = 0.0173;
-    prm.CD1 = -0.0337;
-    prm.CD2 = 0.0517;
-    prm.p_exp = traj_data.p;
-    % get state and control vector for jacobian
-    V     = interp_sinc(traj_data.t, traj_data.state(:,1), t);
-    chi   = interp_sinc(traj_data.t, traj_data.state(:,2), t);
-    gamma = interp_sinc(traj_data.t, traj_data.state(:,3), t);
-    x     = interp_sinc(traj_data.t, traj_data.state(:,4), t);
-    y     = interp_sinc(traj_data.t, traj_data.state(:,5), t);
-    z     = interp_sinc(traj_data.t, traj_data.state(:,6), t);
-    CL = interp_sinc(traj_data.t, traj_data.control(:,1), t);
-    mu = interp_sinc(traj_data.t, traj_data.control(:,2), t);
-    CT = interp_sinc(traj_data.t, traj_data.control(:,3), t);
-    Z = [V, chi, gamma, x, y, z];
-    U = [CL, mu, CT, traj_data.VR];
-    % evaluate jacobian
-    A = JacEval(Z, U, prm);
-end
+function [x, u] = diffFlatModel(X, p, VR)
+    g = 9.81;
+    m = 4.5;
+    rho = 1.225;
+    S = 0.473;
+    g = 9.806;
+    Cd0 = 0.0173;
+    Cd1 = -0.0337;
+    Cd2 = 0.0517;
+    
+    z = X(1,3);
+    zdot = X(2,3); xdot = X(2,1); ydot = X(2,2); 
+    zddot = X(3,3); xddot = X(3,1); yddot = X(3,2);
 
-function FTM = get_FTM(t,traj_data, flg)
-global d
-    switch flg
-        case 0 % time-evolve method
-            Phi=zeros(d);
-            Phi0=eye(d);
-            options = odeset('RelTol',1e-9,'AbsTol',1e-9);
-            linDervs = @(t,X) sysModel(t, traj_data)*X;
-            for i=1:d
-                [~,X] = ode15s(@(t,X) linDervs(t,X),[0,t(end)],Phi0(:,i),options);
-                Phi(:,i)=X(end,:)';
-            end
-            FTM = Phi;
-        case 1 % Friedmann's method
-            h = t(2) - t(1);
-            FTM = eye(d);
-            for i = 1:length(t)-2
-                K = friedmann_K(h, (t(end) - i*h));
-                FTM = FTM*K;
-            end
-    end
- 
-end
+    % wind model
+    Wx = VR*(-z)^p;
+    Wxz = (p*VR)*((-z)^p)/z;
 
-function K = friedmann_K(h,t)
-global d
-    A_psi = sysModel(t);
-    A_psi_h_by_2 = sysModel(t+0.5*h);
-    A_psi_h = sysModel(t+h);
-    E = A_psi_h_by_2*(eye(d) + 0.5*h*A_psi);
-    F = A_psi_h_by_2*(eye(d) + (-0.5 + 2^(-0.5))*h*A_psi + (1 - 2^(-0.5))*h*E);
-    G = A_psi_h*(eye(d) - h*(2^(-0.5))*E + (1 + 2^(-0.5))*h*F);       
-    K = eye(d) + (h/6)*(A_psi + 2*(1 - 2^(-0.5))*E + 2*(1 + 2^(-0.5))*F + G);
+    % non flat outputs
+    V = ((xdot - Wx)^2 + ydot^2 + zdot^2)^0.5;
+    Vdot = (xdot*xddot - xdot*zdot*Wxz - xddot*Wx + Wx*Wxz*zdot + ydot*yddot + zdot*zddot)/V;
+    gamma = -asin(zdot/V);
+    gammadot = (zdot*Vdot - V*zddot)/(V*(V^2 - zdot^2)^0.5);
+    chi = atan2(ydot,(xdot - Wx));
+    chidot = (xdot*yddot - yddot*Wx - ydot*xddot + ydot*zdot*Wxz)/(ydot^2 + xdot^2 + Wx^2 - 2*xdot*Wx);
+    nu = atan((V*cos(gamma)*chidot - Wxz*zdot*sin(chi))/(V*gammadot + g*cos(gamma) - Wxz*cos(chi)*sin(gamma)*zdot));
+    Cl = (m*V*cos(gamma)*chidot - m*Wxz*zdot*sin(chi))/(0.5*rho*S*sin(nu)*V^2);
+
+    % aerodynamic forces
+    Cd = Cd0 + Cd1*Cl + Cd2*Cl^2;
+    D = 0.5*rho*S*V^2*Cd;
+    T = m*Vdot + D + m*g*sin(gamma) + m*Wxz*zdot*cos(gamma)*cos(chi);
+    CT = T/(0.5*rho*S*V^2);
+    
+    x = [V, chi, gamma]; u = [Cl, nu, CT];
 end
