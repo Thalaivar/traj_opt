@@ -37,9 +37,9 @@ function f = optimizeStabilityFSD(X, trajData, windShear, objType)
         end
         trajData.X = x; trajData.U = u;
         
-        [~,FE] = spectralMethod(trajData);
+        [~,f] = spectralMethod(trajData, true);
 %         FE = real(freidmannMethod(trajData,x,u));
-        f = max(FE(find(abs(FE) > 1e-8)));
+%         f = max(FE(find(abs(FE) > 1e-8)));
 %         f = testObjFun(trajData, x, u, N);
 %         f = sum(FE);
 %         

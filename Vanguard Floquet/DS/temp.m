@@ -1,11 +1,11 @@
 clear all
 close all
 addpath('lib\')
-load('full_state_discrete\solutions\maxObjFun\SE50_diffWind.mat')
+load('full_state_discrete\solutions\maxObjFun\SEE60_sameWind.mat')
 trajData.type = 'full-state'; trajData.shape = 'eight';
 trajData = stateControlMat(sol, N, p, trajData);
 
-[eigE, FE] = spectralMethod(trajData);
+[eigE, FE, maxViolation, grpSizes] = spectralMethod(trajData, false);
 eigE = eigE((abs(imag(eigE)) <= 0.25*N*2*pi/trajData.T));
 scatter(real(eigE), imag(eigE), 'xm')
 % 

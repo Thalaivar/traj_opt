@@ -1,4 +1,4 @@
-function [eigE, FE] = spectralMethod(trajData)
+function [eigE, FE] = spectralMethod(trajData, maxFlag)
     % change this parameter according to model
     d = 4;
     % spectral method runs on same number of grid points as trajectory
@@ -17,7 +17,11 @@ function [eigE, FE] = spectralMethod(trajData)
     
     eigE = eig(Dmat - Mmat);
     eigE = -1*eigE;
-    FE = identifyFloquet(eigE, N, trajData.T);
+    if(maxFlag)
+        FE = identifyMaxFloquet(eigE, N, trajData.T);
+    else
+        [FE, maxViolation, grpSizes] = identifyFloquet(eigE, N, trajData.T);
+    end
 end
 
 function A = sysModel(p, Z, U)

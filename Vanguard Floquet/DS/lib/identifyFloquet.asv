@@ -1,4 +1,4 @@
-function [FE, maxViolation, grpSizes] = identifyFloquet(eigE, N, T)
+function FE = identifyFloquet(eigE, N, T)
     reRelTol = 1e-3;
     if(0.25*N < 2*pi/T)
         error("N is not large enough, must be at least 8*pi/T")
@@ -9,7 +9,7 @@ function [FE, maxViolation, grpSizes] = identifyFloquet(eigE, N, T)
     sortedEigE = sort(eigE, 'descend', 'ComparisonMethod', 'real');
     eigArrLen = length(sortedEigE);
     % identify vertical lines
-    j = 1; FE = []; grpSizes = []; maxViolation = []; groupFE = [];
+    j = 1; FE = []; grpSizes = []; maxViolation = [];
     while(j+2 <= eigArrLen)
         j1 = sortedEigE(j); j2 = sortedEigE(j+1); j3 = sortedEigE(j+2);
         isFELine = imCond(j1, j2, j3, T);
@@ -18,7 +18,7 @@ function [FE, maxViolation, grpSizes] = identifyFloquet(eigE, N, T)
             isSameGroup = reCond(j1, j2, j3, reRelTol);
             if(isSameGroup)
                 groupSize = 0; meanFE = 0; currGroup = [];
-                while(abs((real(sortedEigE(j)) - real(j1))/real(j1)) < reRelTol)
+                while(abs((real(sortedEigE(j)) - real(j1))) < 1e-4)
                     groupSize = groupSize + 1;
                     meanFE = meanFE + real(sortedEigE(j));
                     currGroup(end+1) = sortedEigE(j);
@@ -28,8 +28,7 @@ function [FE, maxViolation, grpSizes] = identifyFloquet(eigE, N, T)
                     end
                 end
                 grpSizes(end+1) = groupSize;
-                groupFE(end+1) = meanFE/groupSize;
-                FE = checkConjugate(meanFE, groupSize, FE, N);
+                FE(end+1) = meanFE/groupSize;
                 maxViolation(end+1) = abs(real((currGroup(1)-currGroup(groupSize)))/real(j1));
             else
                 j = j + 1;
@@ -38,7 +37,7 @@ function [FE, maxViolation, grpSizes] = identifyFloquet(eigE, N, T)
             j = j + 1;
         end
     end
-    maxViolation = [maxViolation; groupFE];
+    FE = [FE; grpSizes; maxViolation];
 end
 
 function isFELine = imCond(j1, j2, j3, T)
@@ -63,12 +62,9 @@ function isSameGroup = reCond(j1, j2, j3, reRelTol)
         end
     end
 end
-function FE = checkConjugate(meanFE, groupSize, FE, N)
+function FE = checkConjugate(meanFE, groupSize, FE)
     devMargin = 7;
     if groupSize <= 0.5*N+devMargin && groupSize >= 0.5*N-devMargin
         FE(end+1) = meanFE/groupSize;
-    elseif groupSize <= N + devMargin && groupSize >= N - devMargin
-        FE(end+1) = meanFE/groupSize;
-        FE(end+1) = meanFE/groupSize;
-    end
+    elseif groupSize <= N + devMargin && groupSize >= 0.5*
 end
