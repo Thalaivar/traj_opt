@@ -1,9 +1,0 @@
-05/06/19
-
-test6
-glycolytic
-for testing FE groups identification
-
-cs1.mat - no vertical lines exists
-cs2.mat - only one estimated due to the second line being ill conditioned
-cs3.mat - modes and number of points estiamted accurately
