@@ -1,0 +1,14 @@
+05/06/19
+
+test9a 
+for FE groups identification test
+
+cs1.mat - The damped modes after -5 are not well defined. For example, -5.4319 does not have a well defined straight line near the real axis
+cs2.mat - All modes except the most damped one are estimated, the most damped mode does not have a vertical line.
+cs3.mat - All modes estimated
+cs4.mat - Incorrect number of points estimated for a line, which is not well defined near the real axis (fig saved)
+cs5.mat - all modes estimated
+cs6.mat - unable to estimate modes
+cs7.mat - fails to estimate modes due to ill conditioning of lines
+cs8.mat - fails to estimate modes due to ill conditioning of lines
+cs9.mat - all modes estimated

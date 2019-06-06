@@ -2,45 +2,43 @@ addpath('..\lib\')
 
 clearvars
 close all
-% load('diff_flat_discrete\temp2.mat')
-% load('..\diff_flat_discrete\solutions\maxObjFun\SEE60_diffWind.mat')
-load('..\diff_flat_discrete\solutions\sumObjFun\SEE60_circleIG.mat')
-% load('..\full_state_discrete\solutions\trajectoryOptimized\EE60.mat')
-trajData.type = 'diff-flat';
-trajData.shape = 'eight';
+load('../3DOF/full_state_discrete/lineSep2.mat')
+trajData.type = 'full-state';
+trajData.shape = 'circle';
 
 trajData = stateControlMat(sol, N, p, trajData);
 %% spectral method
-[eigE, spectralFE] = spectralMethod(trajData);
-%% Freidmann method
-[~,freidMannGrid] = fourierdiff(500);
-[~,freidmannFE] = freidmannMethod(trajData, freidMannGrid);
-%% time march method
-[FTM,timeMarchFE] = timeMarchMethod(trajData);
-%% compare difference in the two
-freidmannEstimate = sort(real(freidmannFE)', 'descend');
-timeMarchEstimate = sort(real(timeMarchFE)', 'descend');
-residualFreidmann = max(freidmannEstimate - timeMarchEstimate)
-%% plotting
-figure
-hold on
-p1 = plot(real(eigE),imag(eigE),'xm');
-p3 = plot(real(timeMarchFE), imag(timeMarchFE), 'xg', 'LineWidth', 1.25, 'MarkerSize', 10);
-p2 = plot(real(freidmannFE),imag(freidmannFE),'or','LineWidth',1,'MarkerSize',10);
-limSet = 1.2*max(abs(real(eigE)));
-xlim([-limSet,limSet]);
-if p == 1
-      traj_type = 'linear';
-else
-    traj_type = 'exponential';
-end
-title_str1 = ['Dynamic soaring in ', traj_type, ' profile. '];
-title_str2 = ['N = ' num2str(trajData.N)];
-title([title_str1 title_str2]);
-grid minor
-legend([p1,p2,p3],{'Spectral FE','Friedmann-FE','Time-evolved FE'});
-
-scatter(real(spectralFE), imag(spectralFE), 75, 'sb', 'LineWidth', 1.25, 'DisplayName', 'Estimated FE')
+[spectralFE,  eigE, AM, groupSizes] = spectralMethod(trajData);
+% [FE,groupSize,Dmat,Mmat,AM] = spectralMethodMax(trajData);
+% %% Freidmann method
+% [~,freidMannGrid] = fourierdiff(500);
+% [~,freidmannFE] = freidmannMethod(trajData, freidMannGrid);
+% %% time march method
+% [FTM,timeMarchFE] = timeMarchMethod(trajData);
+% %% compare difference in the two
+% freidmannEstimate = sort(real(freidmannFE)', 'descend');
+% timeMarchEstimate = sort(real(timeMarchFE)', 'descend');
+% residualFreidmann = max(freidmannEstimate - timeMarchEstimate)
+% %% plotting
+% figure
+% hold on
+% p1 = plot(real(eigE),imag(eigE),'xm');
+% p3 = plot(real(timeMarchFE), imag(timeMarchFE), 'xg', 'LineWidth', 1.25, 'MarkerSize', 10);
+% p2 = plot(real(freidmannFE),imag(freidmannFE),'or','LineWidth',1,'MarkerSize',10);
+% limSet = 1.2*max(abs(real(eigE)));
+% xlim([-limSet,limSet]);
+% if p == 1
+%       traj_type = 'linear';
+% else
+%     traj_type = 'exponential';
+% end
+% title_str1 = ['Dynamic soaring in ', traj_type, ' profile. '];
+% title_str2 = ['N = ' num2str(trajData.N)];
+% title([title_str1 title_str2]);
+% grid minor
+% legend([p1,p2,p3],{'Spectral FE','Friedmann-FE','Time-evolved FE'});
+% 
+% scatter(real(spectralFE), imag(spectralFE), 75, 'sb', 'LineWidth', 1.25, 'DisplayName', 'Estimated FE')
 
 %% functions
 function trajData = stateControlMat(sol, N, p, trajData)

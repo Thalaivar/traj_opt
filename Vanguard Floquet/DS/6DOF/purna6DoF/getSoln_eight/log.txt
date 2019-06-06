@@ -1,0 +1,7 @@
+30/05/19
+test9a
+
+6DoF eight DS solution
+all-states collocation
+no use of flatness
+test9 solutions are used as initial guess

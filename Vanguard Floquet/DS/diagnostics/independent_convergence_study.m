@@ -1,9 +1,90 @@
 addpath('../lib/')
-
-load('../full_state_discrete/solutions/trajectoryOptimized/E500C.mat')
+clear all
+load('../full_state_discrete/solutions/trajectoryOptimized/E500.mat')
 trajData.type = 'full-state'; trajData.shape = 'circle';
 trajData = stateControlMat(sol, N, p, trajData);
+%% time marched estimates
+[~, FE] = timeMarchMethod(trajData);
 
+trueMaxFE = max(real(FE));
+if length(trueMaxFE) > 2
+    trueMaxFE = trueMaxFE(1);
+end
+%% spectral method
+% fN = 50;
+% % 0.041 0.0058
+% currMaxFE = 0; prevMaxFE = Inf;
+% while(abs((currMaxFE - prevMaxFE)) > 1e-5)
+%     prevMaxFE = currMaxFE;
+%     tic
+%     [~,currMaxFE] = spectralMethodMod(trajData, fN);
+%     spectralTime = toc;
+%     fN = fN + 2;
+% end
+% spectralPoints = fN; spectralRelErr = abs(currMaxFE - trueMaxFE)/abs(trueMaxFE);
+% tic
+%% Freidmann's method
+fN = 50; data = []; NData = [];
+currMaxFE = 0; prevMaxFE = Inf;
+while(abs((currMaxFE - prevMaxFE)) > 1e-5)
+    prevMaxFE = currMaxFE;
+    tic
+    [~,freidmannGrid] = fourierdiff(fN);
+    [~,FE] = freidmannMethod(trajData, freidmannGrid);
+    currMaxFE = max(real(FE));
+    freidmannTime = toc;
+    if(length(currMaxFE) > 1)
+        currMaxFE = currMaxFE(1);
+    end
+    NData(end+1) = fN;
+    fN = fN + 2;
+    data(end+1) = abs((currMaxFE - prevMaxFE));
+    
+end
+freidmannPoints = fN; freidmannRelErr = abs(currMaxFE - trueMaxFE)/abs(trueMaxFE);
+%% functions
+function [eigE, FE] = spectralMethodMod(trajData, N)
+    d = 4;
+    T = trajData.T;
+    [D,t] = fourierdiff(N); t = t*T/(2*pi);
+    Dmat = zeros(d*N); Mmat = zeros(d*N);
+    
+    tt = trajData.T*trajData.fourierGrid/(2*pi);
+    X = zeros(N,6); U = zeros(N,3);
+    for i = 1:6
+        X(:,i) = interp_sinc(tt, trajData.X(:,i), t);
+    end
+    U(:,1) = interp_sinc(tt, trajData.U(:,1), t);
+    U(:,2) = interp_sinc(tt, trajData.U(:,2), t);
+    if strcmp(trajData.type, 'diff-flat')
+        U(:,3) = interp_sinc(tt, trajData.U(:,3), t);
+    end
+    
+    for i = 1:N
+        A = sysModel(trajData.p, X(i,:), [U(i,:), trajData.VR]);
+        for j = 1:d
+           for k = 1:d
+                Mmat(i+(j-1)*N,(k-1)*N+i) = A(j,k); 
+           end
+           Dmat((j-1)*N+1:j*N,(j-1)*N+1:j*N) = D*(2*pi/T);
+        end
+    end
+    
+    eigE = eig(Dmat - Mmat);
+    eigE = -1*eigE;
+    FE = identifyMaxFloquet(eigE, N, trajData.T);
+end
+function A = sysModel(p, Z, U)
+    prm.m = 4.5;
+    prm.S = 0.473;
+    prm.CD0 = 0.0173;
+    prm.CD1 = -0.0337;
+    prm.CD2 = 0.0517;
+    prm.p_exp = p;
+    % evaluate jacobian
+    A = JacEval(Z, U, prm);
+    A = [A(1:3,1:3), A(1:3,6); A(6,1:3), A(6,6)];
+end
 function trajData = stateControlMat(sol, N, p, trajData)
     x = zeros(N, 6);
     u = zeros(N, 3);

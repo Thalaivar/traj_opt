@@ -1,0 +1,9 @@
+30/05/19
+
+6DoF DS solution
+flatness engaged
+discretized time-history of flat outputs as design variables
+derivatives of flat outputs computed using DFT
+
+The solutions were unsatisfactory
+So passed as guess to all states discretization code

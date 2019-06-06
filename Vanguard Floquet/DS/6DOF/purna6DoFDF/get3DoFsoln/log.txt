@@ -1,0 +1,11 @@
+02/06/19
+
+all-states eight soln also added
+
+15/05/19
+
+3DoF DS loiter solution
+all-states and controls Fourier collocation
+
+Accounting for the linear trend in chi
+chi = chi_periodic + a*t

@@ -1,0 +1,9 @@
+05/06/19
+
+test5 
+van der Pol
+for testing FE groups identification
+
+cs1.mat - no modes estimated because no vertical lines
+cs2.mat - most damped mode not estimated due to ill conditioned line
+cs3.mat - all estimated

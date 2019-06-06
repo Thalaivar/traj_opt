@@ -1,0 +1,29 @@
+    xhat = fft(x); dxhat =1i*[0:N/2-1 0 -N/2+1:-1]'.*xhat; % 1 is odd
+    dx = fac*real(ifft(dxhat));
+    ddxhat = ((1i*[0:N/2 -N/2+1:-1]').^2).*xhat; % 2 is even
+    ddx = fac*fac*real(ifft(ddxhat));
+    
+    yhat = fft(y); dyhat =1i*[0:N/2-1 0 -N/2+1:-1]'.*yhat; % 1 is odd
+    dy = fac*real(ifft(dyhat));
+    ddyhat = ((1i*[0:N/2 -N/2+1:-1]').^2).*yhat; % 2 is even
+    ddy = fac*fac*real(ifft(ddyhat));    
+
+    zhat = fft(z); dzhat =1i*[0:N/2-1 0 -N/2+1:-1]'.*zhat; % 1 is odd
+    dz = fac*real(ifft(dzhat));
+    ddzhat = ((1i*[0:N/2 -N/2+1:-1]').^2).*zhat; % 2 is even
+    ddz = fac*fac*real(ifft(ddzhat));    
+    
+    Phihat = fft(Phi); dPhihat =1i*[0:N/2-1 0 -N/2+1:-1]'.*Phihat; % 1 is odd
+    dPhi = fac*real(ifft(dPhihat));
+    ddPhihat = ((1i*[0:N/2 -N/2+1:-1]').^2).*Phihat; % 2 is even
+    ddPhi = fac*fac*real(ifft(ddPhihat));
+    
+    Thethat = fft(Thet); dThethat =1i*[0:N/2-1 0 -N/2+1:-1]'.*Thethat; % 1 is odd
+    dThet = fac*real(ifft(dThethat));
+    ddThethat = ((1i*[0:N/2 -N/2+1:-1]').^2).*Thethat; % 2 is even
+    ddThet = fac*fac*real(ifft(ddThethat));
+
+    Psi1hat = fft(Psi1); dPsi1hat =1i*[0:N/2-1 0 -N/2+1:-1]'.*Psi1hat; % 1 is odd
+    dPsi = fac*real(ifft(dPsi1hat)) + Psi0;
+    ddPsi1hat = ((1i*[0:N/2 -N/2+1:-1]').^2).*Psi1hat; % 2 is even
+    ddPsi = fac*fac*real(ifft(ddPsi1hat));a
