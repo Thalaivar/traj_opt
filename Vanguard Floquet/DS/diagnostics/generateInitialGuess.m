@@ -38,7 +38,7 @@ saveFile = ['../diff_flat_discrete/solutions/IG_circle_linear_', num2str(N)];
 save(saveFile, 'sol', 'N', 'p');
 
 %% eight guess
-N = 60; 
+N = 70; 
 
 VR_0 = 0.1; tf_0 = 20;
 [~, x] = fourierdiff(N);
@@ -51,13 +51,13 @@ z = -20*(sin(4*pi*t/tf_0) + 1) - 0.11;
 p = 0.25;
 [X,U] = getTrajFFT([x', y',z'], tf_0, VR_0, 0.25);
 sol = [X(:,1); unwrap(X(:,2)); X(:,3); X(:,4); X(:,5); X(:,6); U(:,1); U(:,2); tf_0; VR_0];
-saveFile = ['../full_state_discrete/solutions/IG_eight_expo_', num2str(N)];
+saveFile = ['../../3DOF/full_state_discrete/solutions/IG_eight_expo_', num2str(N)];
 save(saveFile, 'sol', 'N', 'p');
 
 p = 1;
 [X,U] = getTrajFFT([x', y',z'], tf_0, VR_0, 1);
 sol = [X(:,1); unwrap(X(:,2)); X(:,3); X(:,4); X(:,5); X(:,6); U(:,1); U(:,2); tf_0; VR_0];
-saveFile = ['../full_state_discrete/solutions/IG_eight_linear_', num2str(N)];
+saveFile = ['../../3DOF/full_state_discrete/solutions/IG_eight_linear_', num2str(N)];
 save(saveFile, 'sol', 'N', 'p');
 
 %% differential flatness discretization

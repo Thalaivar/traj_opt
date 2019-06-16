@@ -2,7 +2,7 @@ addpath('..\lib\')
 
 clearvars
 close all
-load('../3DOF/full_state_discrete/lineSep2.mat')
+load('../3DOF/full_state_discrete/solutions/finalResults/diffWind/LS_100_AM_GS_O_S_L.mat')
 trajData.type = 'full-state';
 trajData.shape = 'circle';
 

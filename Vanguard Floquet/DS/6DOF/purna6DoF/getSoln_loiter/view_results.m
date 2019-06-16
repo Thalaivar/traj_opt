@@ -1,12 +1,12 @@
 clear all
 close all
 
-load temp_initguess
+load VROptSQPLin50.mat
 % load('./results/loiterExp_001');
 load acmod
-ac.p_exp = 0.25;
+ac.p_exp = 1;
 
-N = (length(Z)-3)/18;
+N = (length(Z)-3)/16;
 
 VR = Z(end-1);
 tfin = Z(end);
@@ -14,8 +14,8 @@ Psi0 = Z(end-2);
 t = ((tfin/N)*(1:N))';
 
 % X = [u,v,w,p,q,r,Phi,Thet,Psi,x,y,z,df,da,de,dr,CTx,CTy]
-X(N,18) = 0;
-for j = 1:18
+X(N,16) = 0;
+for j = 1:16
     X(:,j) = Z((j-1)*N+1:j*N);
 end
 X(:,9) = X(:,9) + Psi0*t;
@@ -36,8 +36,8 @@ df = X(:,13);
 da = X(:,14);
 de = X(:,15);
 dr = X(:,16);
-CTx = X(:,17);
-CTy = X(:,18);
+% CTx = X(:,17);
+% CTy = X(:,18);
 
 VT = sqrt(u.^2 + v.^2 + w.^2);
 aoa = atan(w./u);
@@ -117,43 +117,43 @@ xlim([0,t(end)]);
 % controls
 figure
 
-subplot(2,3,1)
-plot(t,CTy,'-k');
-xlabel('t');
-title('C_{Ty}');
-xlim([0,t(end)]);
+% subplot(2,3,1)
+% plot(t,CTy,'-k');
+% xlabel('t');
+% title('C_{Ty}');
+% xlim([0,t(end)]);
 
-subplot(2,3,2)
+subplot(2,2,1)
 plot(t,df,'-k');
 xlabel('t');
 title('\delta_f');
 xlim([0,t(end)]);
 
-subplot(2,3,3)
+subplot(2,2,2)
 plot(t,da,'-k');
 xlabel('t');
 title('\delta_a');
 xlim([0,t(end)]);
 
-subplot(2,3,4)
+subplot(2,2,3)
 plot(t,de,'-k');
 xlabel('t');
 title('\delta_e');
 xlim([0,t(end)]);
 
-subplot(2,3,5)
+subplot(2,2,4)
 plot(t,dr,'-k');
 xlabel('t');
 title('\delta_r');
 xlim([0,t(end)]);
 
-subplot(2,3,6)
-hold on
-plot(t,CTx,'-k');
-hold off
-xlabel('t');
-title('C_{Tx}');
-xlim([0,t(end)]);
+% subplot(2,3,6)
+% hold on
+% plot(t,CTx,'-k');
+% hold off
+% xlabel('t');
+% title('C_{Tx}');
+% xlim([0,t(end)]);
 
 %%%%%%%%%%%%%%%%%%
 figure

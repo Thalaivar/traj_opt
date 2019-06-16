@@ -1,5 +1,5 @@
 function [FE, groupSizes, AM] = identifyFloquet(eigE, N, T)
-    imRelTol = 1e-2; reRelTol = 1e-3; reAbsTol = 1e-4;
+    imRelTol = 1e-2; reRelTol = 1e-2; reAbsTol = 1e-4;
     if(0.25*N < 2*pi/T)
         error("N is not large enough, must be at least 8*pi/T")
     end
@@ -25,7 +25,7 @@ function [FE, groupSizes, AM] = identifyFloquet(eigE, N, T)
             if length(currGroup) > 0.25*N
                 % if we have a non empty group check termination points
                 currGroup = endCondition([j1, j2, j3], T, currGroup, imRelTol, reRelTol, reAbsTol);
-                [FE,AM] = examineGroup(currGroup, FE, N, AM);
+                [FE,AM] = examineGroup(currGroup, FE, N, AM, eigE);
                 groupSizes(end+1) = length(currGroup);
             else
                 j = j + max(length(currGroup), 1);
@@ -66,7 +66,7 @@ function isSameGroup = reCond(j1, j2, j3, reRelTol, reAbsTol)
     end
 end
 function result = compareRealFE(x, y, reRelTol, reAbsTol)
-    if(abs(real(x)) < 1e-4 && abs(real(y)) < 1e-4)
+    if(abs(real(x)) < 1e-3 && abs(real(y)) < 1e-3)
         result = abs(real(x) - real(y)) < reAbsTol;
     else
         result = (abs((real(x) - real(y))/real(y)) <= reRelTol);
@@ -94,9 +94,10 @@ function [currGroup, indx] = endCondition(J, T, currGroup, imRelTol, reRelTol, r
         end
     end
 end
-function [FE,AM] = examineGroup(currGroup, FE, N, AM)
+function [FE,AM] = examineGroup(currGroup, FE, N, AM, eigE)
     groupSize = length(currGroup);
     if groupSize < 0.5*N-6 
+        scatter(real(eigE), imag(eigE), 'xm');
         errmsg = ['Too few points in vertical line corresponding to : ', num2str(real(currGroup(1)))];
         error(errmsg);
     else
@@ -107,8 +108,8 @@ function [FE,AM] = examineGroup(currGroup, FE, N, AM)
             AM(end+1) = 1;
             if length(indx) ~= 1
                 % if no real spectral eigs, investigate
-                warnmsg = ['Incorrect number of real spectral eigs for line corresponding to real FE = ',num2str(real(currGroup(1)))];
-                warning(warnmsg);
+%                 warnmsg = ['Incorrect number of real spectral eigs for line corresponding to real FE = ',num2str(real(currGroup(1)))];
+%                 warning(warnmsg);
                 
                 if length(indx) > 1
                     % in most cases, real spurious eigs close to vertical
@@ -140,8 +141,8 @@ function [FE,AM] = examineGroup(currGroup, FE, N, AM)
                 FE(end+1) = currGroup(indx(2)); 
                 AM(end+1) = 2;
             else
-                warnmsg = ['Incorrect number of real spectral eigs for line corresponding to N points = ',num2str(real(currGroup(1)))];
-                warning(warnmsg);
+%                 warnmsg = ['Incorrect number of real spectral eigs for line corresponding to N points = ',num2str(real(currGroup(1)))];
+%                 warning(warnmsg);
                 [~,indx] = min(abs(imag(currGroup)));
                 FE(end+1) = complex(real(currGroup(indx)), imag(currGroup(indx)));
                 FE(end+1) = complex(real(currGroup(indx)), -imag(currGroup(indx)));
@@ -164,8 +165,8 @@ function [FE,AM] = examineGroup(currGroup, FE, N, AM)
                 FE(end+1:end+3) = currGroup(indx);
                 AM(end+1) = 3;
             else
-                warnmsg = ['Incorrect number of real spectral eigs for line corresponding to 3N/2 points = ',num2str(real(currGroup(1)))];
-                warning(warnmsg);
+%                 warnmsg = ['Incorrect number of real spectral eigs for line corresponding to 3N/2 points = ',num2str(real(currGroup(1)))];
+%                 warning(warnmsg);
                 [~,indx] = min(abs(imag(currGroup)));
                 FE(end+1) = complex(real(currGroup(indx)), imag(currGroup));
                 FE(end+1) = complex(real(currGroup(indx)), -imag(currGroup));
@@ -173,6 +174,9 @@ function [FE,AM] = examineGroup(currGroup, FE, N, AM)
                 AM(end+1) = 1; AM(end+1) = 1;
             end
         else
+            scatter(real(eigE), imag(eigE), 'xm');
+            hold on
+            scatter(real(currGroup), imag(currGroup), 'sb');
             errmsg = ['Too many points in vertical line corresponding to : ', num2str(real(currGroup(1)))];
             error(errmsg);
         end

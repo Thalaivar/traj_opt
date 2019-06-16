@@ -96,7 +96,8 @@ classdef aircraft
            u = Z(1); v = Z(2); w = Z(3); p = Z(4); q = Z(5); r = Z(6);
            phi = Z(7); thet = Z(8); psi = Z(9); % x = Z(10); y = Z(11); 
            z = Z(12); df = Z(13); da = Z(14); de = Z(15); dr = Z(16);
-           CTx = Z(17); CTy = Z(18);
+           % CTx = Z(17); CTy = Z(18);
+           CTx = 0; CTy = 0;
            dZ = zeros(12,1);
            
            %%%% Wind model

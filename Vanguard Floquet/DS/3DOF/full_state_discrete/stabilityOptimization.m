@@ -1,6 +1,5 @@
-function solStruct = stabilityOptimization(initialGuessSaveFile, type, windShear, objType)
+function solStruct = stabilityOptimization(initialGuessSaveFile, type, windShear)
     load(initialGuessSaveFile)
-    trajData.shape = type;
     
 %     N = 300; 
 %     sol = interpolateSolution('full-state', sol, N, type);
@@ -8,7 +7,7 @@ function solStruct = stabilityOptimization(initialGuessSaveFile, type, windShear
     [D, fourierGrid] = fourierdiff(N);
     column2 = [-(N^2)/12-1/6, -((-1).^(1:(N-1)))./(2*(sin((1:(N-1))*pi/N)).^2)];
     DD = toeplitz(column2,column2([1, N:-1:2])); % second derivative matrix
-
+    
     trajData.p = p; trajData.fourierGrid = fourierGrid;
     trajData.D = D; trajData.DD = DD; trajData.N = N;
     
@@ -17,7 +16,7 @@ function solStruct = stabilityOptimization(initialGuessSaveFile, type, windShear
 %     trajData.freidmannGrid = freidmannGrid;
     
     if strcmp(windShear, 'same')
-        if strcmp(trajData.shape, 'circle')
+        if strcmp(type, 'circle')
             X0 = [sol(1:8*N+1); sol(8*N+3)];
         else
             X0 = sol(1:8*N+1);
@@ -27,24 +26,24 @@ function solStruct = stabilityOptimization(initialGuessSaveFile, type, windShear
         X0 = sol;
     end
     
-    [lb, ub] = optimbounds(N, trajData.shape, windShear, sol(8*N+2));
+    [lb, ub] = optimbounds(N, type, windShear, sol(8*N+2));
     
     options = optimoptions('fmincon', 'Display', 'iter', 'Algorithm', 'sqp', 'UseParallel', true);
     options.MaxIterations = 1000;
     options.MaxFunctionEvaluations = 100000000;
 %     options.StepTolerance = 1e-12;
     
-    sol = fmincon(@(X) optimizeStabilityFSD(X, trajData, windShear, objType), X0, [], [], [], [], lb, ub, @(X) constrainFunctionFSD(X, trajData, windShear), options);
+    sol = fmincon(@(X) optimizeStabilityFSD(X, trajData, windShear), X0, [], [], [], [], lb, ub, @(X) constrainFunctionFSD(X, trajData, windShear), options);
     
     if strcmp(windShear, 'same')
-        if strcmp(trajData.shape, 'circle')
+        if strcmp(type, 'circle')
             sol = [sol(1:8*N+1); trajData.VR; sol(8*N+2)];
         else
             sol = [sol; trajData.VR];
         end
     end
     solStruct.sol = sol; solStruct.N = N; solStruct.p = trajData.p;
-    solStruct.shape = trajData.shape;
+%     solStruct.shape = trajData.shape;
 end
 
 function [lb, ub] = optimbounds(N, type, windShear, VR0)
@@ -61,8 +60,8 @@ function [lb, ub] = optimbounds(N, type, windShear, VR0)
             lb = zeros(8*N+2,1); ub = zeros(8*N+2,1);
         end
     end
-    lbounds = [10-0.01, -2*pi, -pi/4, -200, -200, -200,  -0.2, -pi/3-0.01];
-    ubounds = [80,  2*pi,  pi/4,  200,  200,-0.01,  1.17,  pi/3+0.01];
+    lbounds = [10, -2*pi, -pi/4-0.0001, -200, -200, -200,  -0.2, -pi/3];
+    ubounds = [80,  2*pi,  pi/4,  200,  200,-0.01,  1.17,  pi/3];
     for i = 1:8
         j = (i-1)*N; 
         lb(j+1:j+N,1) = lbounds(i)*ones(N,1);

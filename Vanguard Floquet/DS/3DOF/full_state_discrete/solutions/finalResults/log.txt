@@ -1,0 +1,5 @@
+1. LS_1_AM_GS_O_S_L.mat  -> SQP. IG - VR optimized guess. 
+2. LS_10_AM_GS_O_S_L.mat -> SQP. IG - VR optimized guess
+3. LS_100_AM_GS_O_S_L.mat -> SQP. IG - VR optimized guess
+4. LS_01_AM_GS_E_S_L.mat -> SQP. IG - VR optimized guess
+5. LS_1_AM_GS_E_S_L.mat -> SQP. IG - VR optimized guess

@@ -1,15 +1,17 @@
 clearvars
 addpath('../../lib/')
 
-% saveFile = 'solutions\trajectoryOptimized\E50.mat';
-saveFile = 'lineSep1.mat';
+saveFile = 'solutions\trajectoryOptimized\LE70.mat';
+% saveFile = 'solutions\finalResults\diffWind\LS_100_AM_GS_E_S_L.mat'; 
+% saveFile = 'solutions\IGs\IG_eight_linear_70.mat';
 
 tic
-solStruct = stabilityOptimization(saveFile, 'circle', 'not-same', 'stability');
+solStruct = stabilityOptimization(saveFile, 'eight', 'not-same');
 optTime = toc;
 
-% sol = solStruct.sol;
-% N = solStruct.N;
-% p = solStruct.p;
-% save('solutions\maxObjFun\SEE80_diffWind.mat')
+sol = solStruct.sol;
+N = solStruct.N;
+p = solStruct.p;
+
+
 rmpath('../lib/')

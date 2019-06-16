@@ -1,37 +1,22 @@
 function [c, ceq] = constrainFunctionFSD(X, trajData, windShear)
     p = trajData.p; D = trajData.D; DD = trajData.DD;
-    t = trajData.fourierGrid; type = trajData.shape;
+    fGrid = trajData.fourierGrid;
+    N = trajData.N;
     
-    if strcmp(windShear, 'same')
-        if strcmp(type, 'circle')
-            N = (length(X)-2)/8;
-            chiLinearTerm = X(8*N+2);
-        else
-            N = (length(X)-1)/8;
-        end
-        T = X(8*N+1);
-        VR = trajData.VR;
-    else
-        if strcmp(type, 'circle')
-            N = (length(X)-3)/8;
-            chiLinearTerm = X(8*N+3);
-        else
-            N = (length(X)-2)/8;
-        end
-        T = X(8*N+1); VR = X(8*N+2);
+    if strcmp(windShear, 'not-same')
+        [x,u,T,VR] = stateControlMat3DOF(X,N,windShear);
         trajData.VR = VR;
+    elseif strcmp(windShear, 'same')
+        [x,u,T] = stateControlMat3DOF(X,N,windShear);
+        VR = trajData.VR;
     end
-    
     trajData.T = T;
-    x = zeros(N, 6); 
-    u = zeros(N, 3);
-    for i = 1:8
-        j = (i-1)*N + 1;
-        if i <= 6
-            x(:,i) = X(j:j+N-1,1);
-        else
-            u(:,i-6) = X(j:j+N-1,1);
-        end
+    
+    chiLinearTerm = nan;
+    if strcmp(windShear,'same')
+        if length(X) == 8*N+2, chiLinearTerm = X(8*N+2); end
+    elseif strcmp(windShear, 'not-same')
+        if length(X) == 8*N+3, chiLinearTerm = X(8*N+3); end
     end
     
     diffFac = 2*pi/T;
@@ -39,7 +24,7 @@ function [c, ceq] = constrainFunctionFSD(X, trajData, windShear)
     for i = 1:6
         j = (i-1)*N+1;
         if i == 2
-            if strcmp(type, 'circle')
+            if ~isnan(chiLinearTerm)
                 xdot_cap(j:j+N-1,1) = diffFac*D*x(:,i) + chiLinearTerm*ones(N,1);
             else
                 xdot_cap(j:j+N-1,1) = diffFac*D*x(:,i);
@@ -49,10 +34,8 @@ function [c, ceq] = constrainFunctionFSD(X, trajData, windShear)
         end
     end
     
-    
-    
-    if strcmp(type, 'circle')
-        t = T*t/(2*pi);
+    if ~isnan(chiLinearTerm)
+        t = T*fGrid/(2*pi);
         for i = 1:N
             x(i,2) = x(i,2) + chiLinearTerm*t(i);
         end
@@ -83,17 +66,59 @@ function [c, ceq] = constrainFunctionFSD(X, trajData, windShear)
     % CL rate constraint
     c(end+1:end+N,1) = diffFac*diffFac*DD*u(:,1) - 0.4;
     c(end+1:end+N,1) = -0.4 - diffFac*diffFac*DD*u(:,1);
-    if strcmp(type, 'circle')
+    if ~isnan(chiLinearTerm)
         % non-periodicity in chi
         ceq(end+1) = chiLinearTerm*T + 2*pi;
     end
     
-    [FE, ~, AM, groupSizes] = spectralMethod(trajData);
-    if (imag(FE(1)) ~= 0)
-         c(end+1) = 1e-1 - real(FE(1) - FE(3))/abs(real(FE(1)));
+%     global FE;
+%     global eigE;
+%     global AM;
+%     global groupSizes;
+%     global eigVec;
+    [FE,~,AM,groupSizes] = spectralMethod(trajData);
+    indx = find(imag(FE) == 0);
+    
+     c(end+1) = FE(indx) + 0.055;
+    c(end+1) = -0.06 - FE(indx);
+    
+    if(indx == 1)
+        c(end+1) = 1e-1 - real(FE(indx) - FE(2))/abs(real(FE(indx)));
+        c(end+1) = groupSizes(indx) - (0.5*N + 6);
+        ceq(end+1) = AM(indx) - 1;
+    elseif(indx == 3)
+        c(end+1) = 1e-1 - real(FE(1) - FE(indx))/abs(real(FE(indx)));
+        c(end+1) = groupSizes(2) - (0.5*N + 6);
+        ceq(end+1) = AM(2) - 1;
     else
-        c(end+1) = 1e-1 - real(FE(1) - FE(2))/abs(real(FE(1)));
+        error("No complex pair!")
     end
-    c(end+1) = groupSizes(1) - (N+6);
-    ceq(end+1) = AM(1) - 1;
+
+%     if (imag(FE(1)) ~= 0)
+%          c(end+1) = 1 - real(FE(1) - FE(3))/abs(real(FE(1)));
+%     else
+%         c(end+1) = 1 - real(FE(1) - FE(2))/abs(real(FE(1)));
+%     end
+%     c(end+1) = groupSizes(1) - (N+6);
+%     ceq(end+1) = AM(1) - 1;
+    
+    
+%     phugMode = phugoidStuff(eigE,eigVec,N,T,x(:,1));
+%     c(end+1) = real(phugMode.domFE) + 0.04;
+end
+
+function phugMode = phugoidStuff(eigE, eigVec, N, T, V)
+    [~,ind,trim_ind] = estEigGroups(eigE,N,T,[]);
+    eigE(trim_ind) = [];
+    eigVec(:,trim_ind) = [];
+    phugRef = struct;
+    phugRef.mag = 0.5;
+    phugRef.phs = 1.593;
+    solnRef = struct;
+    solnRef.d = 3;
+    solnRef.N = N;
+    solnRef.T = T;
+    solnRef.Vrms = sqrt(sum(V.^2)/N);
+    solnRef.phugRef = phugRef;
+    phugMode = estPhug3DoF(eigE,eigVec,ind,solnRef);
 end
