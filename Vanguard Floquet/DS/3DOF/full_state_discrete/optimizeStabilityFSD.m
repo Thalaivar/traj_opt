@@ -9,31 +9,31 @@ function f = optimizeStabilityFSD(X, trajData, windShear)
         VR = trajData.VR;
     end
     
-%     trajData.X = x; trajData.U = u;
-%     trajData.T = T;
-%     
-%     chiLinearTerm = nan;
-%     if strcmp(windShear,'same')
-%         if length(X) == 8*N+2, chiLinearTerm = X(8*N+2); end
-%     elseif strcmp(windShear, 'not-same')
-%         if length(X) == 8*N+3, chiLinearTerm = X(8*N+3); end
-%     end
-%     
-%     if ~isnan(chiLinearTerm)
-%         t = T*fGrid/(2*pi);
-%         for i = 1:N
-%             x(i,2) = x(i,2) + chiLinearTerm*t(i);
-%         end
-%     end
-%     
-%     trajData.X = x; trajData.U = u;
+    trajData.X = x; trajData.U = u;
+    trajData.T = T;
     
-%     global FE;
-%     global eigE;
-%     global AM;
-%     global groupSizes;
-%     global eigVec;
-%     [FE, ~, AM, groupSizes, ~] = spectralMethod(trajData);
-%     f = real(FE(1));
-    f = VR;
+    chiLinearTerm = nan;
+    if strcmp(windShear,'same')
+        if length(X) == 8*N+2, chiLinearTerm = X(8*N+2); end
+    elseif strcmp(windShear, 'not-same')
+        if length(X) == 8*N+3, chiLinearTerm = X(8*N+3); end
+    end
+    
+    if ~isnan(chiLinearTerm)
+        t = T*fGrid/(2*pi);
+        for i = 1:N
+            x(i,2) = x(i,2) + chiLinearTerm*t(i);
+        end
+    end
+    
+    trajData.X = x; trajData.U = u;
+    
+    global FE;
+    % global eigE;
+    % global AM;
+    % global groupSizes;
+    % global eigVec;
+    [FE, ~, ~, ~, ~] = spectralMethod(trajData);
+    f = real(FE(1));
+%    f = VR;
 end

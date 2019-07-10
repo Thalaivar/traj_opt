@@ -71,37 +71,19 @@ function [c, ceq] = constrainFunctionFSD(X, trajData, windShear)
         ceq(end+1) = chiLinearTerm*T + 2*pi;
     end
     
-%     global FE;
+    global FE;
 %     global eigE;
 %     global AM;
 %     global groupSizes;
 %     global eigVec;
-    [FE,~,AM,groupSizes] = spectralMethod(trajData);
-    indx = find(imag(FE) == 0);
+%    [FE,~,~,~] = spectralMethod(trajData);
     
-     c(end+1) = FE(indx) + 0.055;
-    c(end+1) = -0.06 - FE(indx);
-    
-    if(indx == 1)
-        c(end+1) = 1e-1 - real(FE(indx) - FE(2))/abs(real(FE(indx)));
-        c(end+1) = groupSizes(indx) - (0.5*N + 6);
-        ceq(end+1) = AM(indx) - 1;
-    elseif(indx == 3)
-        c(end+1) = 1e-1 - real(FE(1) - FE(indx))/abs(real(FE(indx)));
-        c(end+1) = groupSizes(2) - (0.5*N + 6);
-        ceq(end+1) = AM(2) - 1;
+    relLineSep = 1e-2;
+    if imag(FE(1)) == 0
+        c(end+1) = relLineSep - real(FE(1) - FE(2))/abs(real(FE(1)));
     else
-        error("No complex pair!")
+        c(end+1) = relLineSep - real(FE(1) - FE(3))/abs(real(FE(1)));
     end
-
-%     if (imag(FE(1)) ~= 0)
-%          c(end+1) = 1 - real(FE(1) - FE(3))/abs(real(FE(1)));
-%     else
-%         c(end+1) = 1 - real(FE(1) - FE(2))/abs(real(FE(1)));
-%     end
-%     c(end+1) = groupSizes(1) - (N+6);
-%     ceq(end+1) = AM(1) - 1;
-    
     
 %     phugMode = phugoidStuff(eigE,eigVec,N,T,x(:,1));
 %     c(end+1) = real(phugMode.domFE) + 0.04;

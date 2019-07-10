@@ -1,14 +1,23 @@
 clearvars
 addpath('../lib/')
 
-load('../full_state_discrete/solutions/trajectoryOptimized/E50.mat')
+load('../3DOF/full_state_discrete/solutions/trajectoryOptimized/E500.mat')
 trajData.shape = 'circle'; trajData.type = 'full-state';
 trajData = stateControlMat(sol, N, p, trajData);
 
+tic
 [~,timeMarchFE] = timeMarchMethod(trajData);
+t1 = toc;
+%[FE, eigE, ~, ~, eigVec] = spectralMethod(trajData);
+tic
+[~, FE] = spectralMethodMod(trajData, 50);
+t2 = toc;
+%[FTM, freidmannFE] = freidmannMethod(trajData, trajData.fourierGrid); 
+[~,fourierGrid] = fourierdiff(1000);
+tic
+[FTM, freidmannFE] = freidmannMethod(trajData, fourierGrid); 
+t3 = toc;
 
-N = linspace(50, 500, 226);
-compTime = zeros(2,length(N));
 
 rmpath('../lib/')
 function [eigE, FE] = spectralMethodMod(trajData, N)
@@ -40,7 +49,7 @@ function [eigE, FE] = spectralMethodMod(trajData, N)
     
     eigE = eig(Dmat - Mmat);
     eigE = -1*eigE;
-    FE = identify_floquet(eigE, N, trajData.T);
+    FE = identifyFloquet(eigE, N, trajData.T);
 end
 function A = sysModel(p, Z, U)
     prm.m = 4.5;
