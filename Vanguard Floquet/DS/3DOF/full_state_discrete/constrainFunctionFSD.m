@@ -78,7 +78,7 @@ function [c, ceq] = constrainFunctionFSD(X, trajData, windShear)
 %     global eigVec;
 %    [FE,~,~,~] = spectralMethod(trajData);
     
-    relLineSep = 1e-2;
+    relLineSep = 1;
     if imag(FE(1)) == 0
         c(end+1) = relLineSep - real(FE(1) - FE(2))/abs(real(FE(1)));
     else
