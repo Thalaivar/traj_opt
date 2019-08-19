@@ -30,7 +30,7 @@ function [FE, groupSizes, AM] = identifyFloquet(eigE, N, T)
             else
                 j = j + max(length(currGroup), 1);
             end
-            if length(groupSizes) == 2
+            if length(groupSizes) == 4
                 break;
             end
         else

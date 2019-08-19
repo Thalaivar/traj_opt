@@ -2,7 +2,7 @@ function [FTM,FE] = timeMarchMethod(trajData)
     d = 4;
     Phi=zeros(d);
     Phi0=eye(d);
-    options = odeset('RelTol',1e-12,'AbsTol',1e-12);
+    options = odeset('RelTol',1e-14,'AbsTol',1e-14);
     for i=1:d
         [~,X] = ode15s(@(t,X) timeMarchModel(t, X, trajData),[0,trajData.T],Phi0(:,i),options);
         Phi(:,i)=X(end,:)';
@@ -28,6 +28,7 @@ function A = sysModel(t, trajData)
     tt  = trajData.T*trajData.fourierGrid/(2*pi);
     V     = interp_sinc(tt, trajData.X(:,1), t);
     chi   = interp_sinc(tt, trajData.X(:,2), t);
+    chi = chi + trajData.chiLinearTerm*t;
     gamma = interp_sinc(tt, trajData.X(:,3), t);
     x     = interp_sinc(tt, trajData.X(:,4), t);
     y     = interp_sinc(tt, trajData.X(:,5), t);
@@ -44,4 +45,5 @@ function A = sysModel(t, trajData)
     % evaluate jacobian
     A = JacEval(Z, U, prm);
     A = [A(1:3,1:3), A(1:3,6); A(6,1:3), A(6,6)];
+%     A = A(1:3, 1:3);
 end

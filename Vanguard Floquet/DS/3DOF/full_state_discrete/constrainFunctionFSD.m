@@ -54,37 +54,56 @@ function [c, ceq] = constrainFunctionFSD(X, trajData, windShear)
     end
     
     ceq = xdot - xdot_cap;
-    hmin = 0; b = 3;
+    hmin = 0.11; b = 3;
     % z constraints
     c(1:N,1) = x(:,6) + 0.5*b*abs(sin(u(:,2))) + hmin;
     % mu rate^2 constraint
-    c(end+1:end+N,1) = diffFac*diffFac*DD*u(:,2) - 20*pi/180;
-    c(end+1:end+N,1) = -20*pi/180 - diffFac*diffFac*DD*u(:,2);
+    c(end+1:end+N,1) = diffFac*diffFac*DD*u(:,2) - 5*pi/180;
+    c(end+1:end+N,1) = -5*pi/180 - diffFac*diffFac*DD*u(:,2);
     % CL rate constraint
-    c(end+1:end+N,1) = diffFac*D*u(:,1) - 0.4;
-    c(end+1:end+N,1) = -0.4 - diffFac*D*u(:,1);
+    c(end+1:end+N,1) = diffFac*D*u(:,1) - 0.3;
+    c(end+1:end+N,1) = -0.3 - diffFac*D*u(:,1);
     % CL rate constraint
-    c(end+1:end+N,1) = diffFac*diffFac*DD*u(:,1) - 0.4;
-    c(end+1:end+N,1) = -0.4 - diffFac*diffFac*DD*u(:,1);
+    c(end+1:end+N,1) = diffFac*diffFac*DD*u(:,1) - 0.3;
+    c(end+1:end+N,1) = -0.3 - diffFac*diffFac*DD*u(:,1);
     if ~isnan(chiLinearTerm)
         % non-periodicity in chi
         ceq(end+1) = chiLinearTerm*T + 2*pi;
     end
     
-    global FE;
-%     global eigE;
-%     global AM;
-%     global groupSizes;
-%     global eigVec;
-%    [FE,~,~,~] = spectralMethod(trajData);
+%     global FE;
+%     relLineSep = 0.01;
+    % linear
+%     if imag(FE(1)) == 0
+%         c(end+1) = relLineSep - real(FE(1) - FE(2))/abs(real(FE(1)));
+%         if imag(FE(2)) == 0
+%             c(end+1) = relLineSep - real(FE(2) - FE(3))/abs(real(FE(2)));
+%         end
+%     else
+%         c(end+1) = relLineSep - real(FE(1) - FE(3))/abs(real(FE(1)));
+%     end
     
-    relLineSep = 1;
-    if imag(FE(1)) == 0
-        c(end+1) = relLineSep - real(FE(1) - FE(2))/abs(real(FE(1)));
-    else
-        c(end+1) = relLineSep - real(FE(1) - FE(3))/abs(real(FE(1)));
-    end
-    
+    % expo
+%     if imag(FE(1)) == 0
+%         c(end+1) = relLineSep - real(FE(1) - FE(2))/abs(real(FE(1)));
+%         if imag(FE(2)) == 0
+%             c(end+1) = relLineSep - real(FE(2) - FE(3))/abs(real(FE(2)));
+%             if imag(FE(3)) == 0
+%                 c(end+1) = relLineSep - real(FE(3) - FE(4))/abs(real(FE(3)));
+%             end
+%         else
+%             c(end+1) = relLineSep - real(FE(2) - FE(4))/abs(real(FE(2)));
+%         end
+%     else
+%         c(end+1) = relLineSep - real(FE(1) - FE(3))/abs(real(FE(1)));
+%         if imag(FE(3)) == 0
+%             c(end+1) = relLineSep - real(FE(3) - FE(4))/abs(real(FE(3)));
+%         end
+%     end
+    % temp
+%     c(end+1) = relLineSep - real(FE(1) - FE(3))/abs(real(FE(1)));
+%     c(end+1) = relLineSep - real(FE(3) - FE(4))/abs(real(FE(3)));
+
 %     phugMode = phugoidStuff(eigE,eigVec,N,T,x(:,1));
 %     c(end+1) = real(phugMode.domFE) + 0.04;
 end

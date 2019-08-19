@@ -7,9 +7,9 @@ function vv = interp_sinc(t,v,tt)
     if abs(dt(1)-mean(dt))>1e-7&&abs(dt(end)-mean(dt))>1e-7
         error('t should be equi-spaced.');
     end
-    if abs(v(1)-v(end))<1e-10
-        error('v(1) must not be the same as v(N). Remove the leftmost data-point');
-    end
+%     if abs(v(1)-v(end))<1e-10
+%         error('v(1) must not be the same as v(N). Remove the leftmost data-point');
+%     end
     
     tmin = t(1)-(t(2)-t(1));
     tmax = t(end);

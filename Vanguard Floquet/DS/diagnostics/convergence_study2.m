@@ -1,35 +1,47 @@
 clearvars
-addpath('../lib/')
 
-% load('../3DOF/full_state_discrete/solutions/trajectoryOptimized/E50.mat')
-load('../3DOF/full_state_discrete/VROpt_E60.mat')
-
+load('../3DOF/full_state_discrete/solutions/trajectoryOptimized/E500.mat')
 trajData.shape = 'circle'; trajData.type = 'full-state';
 trajData = stateControlMat(sol, N, p, trajData);
 
-% 0.0155, 0.0275, 0.0323
-% 0.0284, 0.0159, 0.0128
-tic
+% get time marched estimates for truth
 [~,timeMarchFE] = timeMarchMethod(trajData);
-t1 = toc;
-%[FE, eigE, ~, ~, eigVec] = spectralMethod(trajData);
-tic
 
-% [~, FE] = spectralMethodMod(trajData, 50);
-FE = spectralMethod(trajData);
-t2 = toc;
+display("Time marching successful!")
 
-%[FTM, freidmannFE] = freidmannMethod(trajData, trajData.fourierGrid); 
-% [~,fourierGrid] = fourierdiff(1000);
-% tic
-% [FTM, freidmannFE] = freidmannMethod(trajData, fourierGrid); 
-% t3 = toc;
+% FE = spectralMethod(trajData);
+% val = maxDiscrepancy(timeMarchFE, FE);
+%%
+[eigE,FE] = spectralMethodMod(trajData, 300);
+ 
+% N = linspace(50, 500, 10); 
+% maxDiscp = zeros(1, 10);
+% for i = 1:length(N)
+%     [~,FE] = spectralMethodMod(trajData, N(i));
+%     maxDiscp(i) = maxDiscrepancy(timeMarchFE, FE);
+% end 
 
-% 0.0207, 0.0289, 0.0459
-% 0.0155, 0.0275, 0.0323
-% 0.0113, 0.0219, 0.0250
+% plot(N, maxDiscp, '--om')
 
-rmpath('../lib/')
+function val = maxDiscrepancy(timeMarchFE, FE)
+    timeMarchFE = sort(timeMarchFE, 'ComparisonMethod', 'real');
+    FE = sort(FE, 'ComparisonMethod', 'real');
+    i = 1; val = 0;
+    while i <= length(FE)
+        if imag(FE(i)) ~= 0
+            cmplx1 = complex(real(timeMarchFE(i)), abs(imag(timeMarchFE(i))));
+            cmplx2 = complex(real(FE(i)), abs(imag(FE(i))));
+            currDiscp = abs(cmplx1 - cmplx2)/abs(cmplx1);
+            val = max(val, currDiscp);
+            i = i + 2;
+        else
+            currDiscp = abs(FE(i)-timeMarchFE(i))/abs(timeMarchFE(i));
+            val = max(val, currDiscp);
+            i = i + 1;
+        end
+    end
+end
+
 function [eigE, FE] = spectralMethodMod(trajData, N)
     d = 4;
     T = trajData.T;
@@ -43,9 +55,6 @@ function [eigE, FE] = spectralMethodMod(trajData, N)
     end
     U(:,1) = interp_sinc(tt, trajData.U(:,1), t);
     U(:,2) = interp_sinc(tt, trajData.U(:,2), t);
-    if strcmp(trajData.type, 'diff-flat')
-        U(:,3) = interp_sinc(tt, trajData.U(:,3), t);
-    end
     
     for i = 1:N
         A = sysModel(trajData.p, X(i,:), [U(i,:), trajData.VR]);
@@ -61,6 +70,7 @@ function [eigE, FE] = spectralMethodMod(trajData, N)
     eigE = -1*eigE;
     FE = identifyFloquet(eigE, N, trajData.T);
 end
+
 function A = sysModel(p, Z, U)
     prm.m = 4.5;
     prm.S = 0.473;
@@ -112,40 +122,4 @@ function trajData = stateControlMat(sol, N, p, trajData)
     end
     trajData.T = T; trajData.VR = VR; trajData.fourierGrid = fourierGrid;
     trajData.X = x; trajData.U =  u; trajData.N = N; trajData.p = p; trajData.D = D;
-end
-function [x, u] = diffFlatModel(X, p, VR)
-    g = 9.81;
-    m = 4.5;
-    rho = 1.225;
-    S = 0.473;
-    g = 9.806;
-    Cd0 = 0.0173;
-    Cd1 = -0.0337;
-    Cd2 = 0.0517;
-    
-    z = X(1,3);
-    zdot = X(2,3); xdot = X(2,1); ydot = X(2,2); 
-    zddot = X(3,3); xddot = X(3,1); yddot = X(3,2);
-
-    % wind model
-    Wx = VR*(-z)^p;
-    Wxz = (p*VR)*((-z)^p)/z;
-
-    % non flat outputs
-    V = ((xdot - Wx)^2 + ydot^2 + zdot^2)^0.5;
-    Vdot = (xdot*xddot - xdot*zdot*Wxz - xddot*Wx + Wx*Wxz*zdot + ydot*yddot + zdot*zddot)/V;
-    gamma = -asin(zdot/V);
-    gammadot = (zdot*Vdot - V*zddot)/(V*(V^2 - zdot^2)^0.5);
-    chi = atan2(ydot,(xdot - Wx));
-    chidot = (xdot*yddot - yddot*Wx - ydot*xddot + ydot*zdot*Wxz)/(ydot^2 + xdot^2 + Wx^2 - 2*xdot*Wx);
-    nu = atan((V*cos(gamma)*chidot - Wxz*zdot*sin(chi))/(V*gammadot + g*cos(gamma) - Wxz*cos(chi)*sin(gamma)*zdot));
-    Cl = (m*V*cos(gamma)*chidot - m*Wxz*zdot*sin(chi))/(0.5*rho*S*sin(nu)*V^2);
-
-    % aerodynamic forces
-    Cd = Cd0 + Cd1*Cl + Cd2*Cl^2;
-    D = 0.5*rho*S*V^2*Cd;
-    T = m*Vdot + D + m*g*sin(gamma) + m*Wxz*zdot*cos(gamma)*cos(chi);
-    CT = T/(0.5*rho*S*V^2);
-    
-    x = [V, chi, gamma]; u = [Cl, nu, CT];
 end
