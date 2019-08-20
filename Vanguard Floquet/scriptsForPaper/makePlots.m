@@ -12,3 +12,4 @@ markerSZ = 80;
 rawResults
 diffNVDP
 goal1StiffPlot
+FSRK4ConsistencyPlot

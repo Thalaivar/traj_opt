@@ -1,6 +1,28 @@
 function trajData = getTrajData(sol, N, prm)
-    if(strcmp(prm.model, '6dof')
-        X = zeros(N,6);
+    if(strcmp(prm.model, '6dof'))
+        X = zeros(N,12); 
+        U = zeros(N,4);
+        for i = 1:16
+            j = (i-1)*N + 1;
+            if i <= 12
+                X(:,i) = sol(j:j+N-1,1);
+            else
+                U(:,i-12) = sol(j:j+N-1,1);
+            end
+        end
+        T = sol(18*N+3); VR = sol(18*N+2);
+        [D,fourierGrid] = fourierdiff(N); t = T*fourierGrid/(2*pi);
+        if(prm.loiter), trajData.chiLinearTerm = sol(18*N+1); end
+        if(prm.correctChi)
+            for i = 1:N
+                X(i,9) = X(i,9) + trajData.chiLinearTerm*t(i);
+            end
+        end
+        trajData.T = T; trajData.VR = VR; trajData.fourierGrid = fourierGrid;
+        trajData.X = X; trajData.U =  U; trajData.N = N; trajData.p = prm.p; trajData.D = D;
+        load('rawMaterial\acmod.mat')
+        trajData.ac = ac;
+        
     elseif(strcmp(prm.model, '3dof'))
         X = zeros(N, 6);
         U = zeros(N, 3);

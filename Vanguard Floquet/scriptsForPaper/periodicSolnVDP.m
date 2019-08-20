@@ -1,13 +1,12 @@
 clearvars
 % retrieve periodic solution for Vanderpol oscillator
-mu = -2;
-choice = 'levenberg';
-% choice = 'fourier';
+mu = -4;
+% choice = 'levenberg';
+choice = 'fourier';
 if strcmp(choice, 'fourier')
     N = 300; d = 2;
 %     X0 = init_guess(N);
-    load('4_300.mat')
-    X0 = X; mu = 3;
+    load('temp.mat')
 %     NN = 0.5*(length(X)-1);
 %     [~,x] = fourierdiff(NN);
 %     tt = x*X(2*NN+1,1)/(2*pi);-
@@ -17,9 +16,9 @@ if strcmp(choice, 'fourier')
 %     X0(end+1,1) = X(2*NN+1,1);
 %     X0 = X;
     options = optimoptions('fmincon', 'Display', 'iter', 'Algorithm', 'sqp', 'MaxFunctionEvaluations', 1000000, 'MaxIterations', 10000, 'UseParallel', true);
-    A = zeros(3,2*N+1); A(1,1) = -1; A(2,N+1) = -1; A(3,2*N+1) = 1;
-    b = [-1; -1; 25];
-    X = fmincon(@(X) objfun(X, mu), X0, A, b, [], [], [], [], [], options);
+%     A = zeros(3,2*N+1); A(1,1) = -1; A(2,N+1) = -1; A(3,2*N+1) = 1;
+%     b = [-1; -1; 25];
+    X = fmincon(@(X) objfun(X, mu), X0, [], [], [], [], [], [], [], options);
     plot(X(1:N,1), X(N+1:2*N,1), 'b', 'LineWidth', 1.25);
     xlabel('$x$', 'Interpreter', 'latex');
     xlabel('$\dot{x}$', 'Interpreter', 'latex');

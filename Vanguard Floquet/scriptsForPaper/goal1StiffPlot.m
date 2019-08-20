@@ -4,7 +4,7 @@ global markerSZ
 
 lineWD = 2; 
 
-load('4_300.mat')
+load('rawMaterial\4_300.mat')
 
 N = 0.5*(length(X)-1);
 fprintf("\n*******************\nGoal 1 : PS performance on stiff systems for VDP \nwith mu = +- %.2f and N = %d\n*******************\n", mu, N);
@@ -27,7 +27,7 @@ ylabel('Im', 'FontSize', fontsize, 'FontName', fonttype)
 legend('PS', 'VSTM', 'Liouville')
 saveas(gcf, 'plots\VDPplus4.jpg', 'jpg')
 
-load('4_300.mat')
+load('rawMaterial\m4_300.mat')
 prm.mu = mu;
 trajData = getTrajData(X, N, prm);
 
