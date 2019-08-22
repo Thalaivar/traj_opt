@@ -10,9 +10,9 @@ function trajData = getTrajData(sol, N, prm)
                 U(:,i-12) = sol(j:j+N-1,1);
             end
         end
-        T = sol(18*N+3); VR = sol(18*N+2);
+        T = sol(16*N+1); VR = sol(16*N+2);
         [D,fourierGrid] = fourierdiff(N); t = T*fourierGrid/(2*pi);
-        if(prm.loiter), trajData.chiLinearTerm = sol(18*N+1); end
+        if(prm.loiter), trajData.chiLinearTerm = sol(16*N+3); end
         if(prm.correctChi)
             for i = 1:N
                 X(i,9) = X(i,9) + trajData.chiLinearTerm*t(i);

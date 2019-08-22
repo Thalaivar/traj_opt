@@ -1,9 +1,9 @@
 function [FE, FTM] = timeMarchMethodGen(trajData, jacEval, d)
     Phi=zeros(d);
     Phi0=eye(d);
-    options = odeset('RelTol',1e-12,'AbsTol',1e-12);
+    options = odeset('RelTol',1e-14,'AbsTol',1e-14);
     for i=1:d
-        [~,X] = ode15s(@(t,X) timeMarchModel(t, X, trajData, jacEval),[0,trajData.T],Phi0(:,i),options);
+        [~,X] = ode15s(@(t,X) timeMarchModel(t, X, trajData, jacEval),[0,trajData.T],Phi0(:,i), options);
         Phi(:,i)=X(end,:)';
     end
     FTM = Phi;

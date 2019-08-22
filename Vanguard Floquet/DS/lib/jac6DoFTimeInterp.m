@@ -4,6 +4,11 @@ function A = jac6DoFTimeInterp(t, trajData)
     
     tt  = trajData.T*trajData.fourierGrid/(2*pi);
     
+%     fprintf("Current time: %.3f\n", t)
+%     if(t >= 0.25*trajData.T), fprintf("1\n"); end
+%     if(t >= 0.50*trajData.T), fprintf("2\n"); end
+%     if(t >= 0.75*trajData.T), fprintf("3\n"); end
+    
     % Z = [u,v,w,p,q,r,phi,theta,psi,x,y,z]
     % U = [df, da, de, dr]
     u     = interp_sinc(tt, trajData.X(:,1), t);

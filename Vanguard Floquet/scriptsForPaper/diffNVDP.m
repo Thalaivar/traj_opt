@@ -1,7 +1,7 @@
 global fonttype;
 global fontsize;
 
-load('3_300.mat')
+load('rawMaterial\3_300.mat')
 
 fprintf("\n*******************\nPS method on VDP with mu = %.2f for N:\n", mu);
 prm.model = 'vanderpol';
@@ -15,26 +15,29 @@ N = [50, 150, 300];
 
 fprintf("%d, %d, %d\n*******************\n", N(1), N(2), N(3))
 
-figure('units','normalized','outerposition',[0 0 1 1]);
-set(gcf, 'PaperPositionMode', 'auto');
+% figure('units','normalized','outerposition',[0 0 1 1]);
+% set(gcf, 'PaperPositionMode', 'auto');
+figure
 scatter(real(eig1), imag(eig1), 'xm')
 grid minor
-xlabel('Re', fontsize, 14, 'FontName', fonttype)
-ylabel('Im', fontsize, 14, 'FontName', fonttype')
-saveas(gcf, 'plots\diffNVDP1.jpg', 'jpg')
+xlabel('Re', 'FontSize', fontsize, 'FontName', fonttype)
+ylabel('Im', 'FontSize', fontsize, 'FontName', fonttype)
+saveas(gcf, 'plots\diffNVDP1.eps', 'eps')
 
-figure('units','normalized','outerposition',[0 0 1 1]);
-set(gcf, 'PaperPositionMode', 'auto');
+% figure('units','normalized','outerposition',[0 0 1 1]);
+% set(gcf, 'PaperPositionMode', 'auto');
+figure
 scatter(real(eig2), imag(eig2), 'xm')
 grid minor
-xlabel('Re', fontsize, 14, 'FontName', fonttype)
-ylabel('Im', fontsize, 14, 'FontName', fonttype)
-saveas(gcf, 'plots\diffNVDP2.jpg', 'jpg')
+xlabel('Re', 'FontSize', fontsize, 'FontName', fonttype)
+ylabel('Im', 'FontSize', fontsize, 'FontName', fonttype)
+saveas(gcf, 'plots\diffNVDP2.eps', 'eps')
 
-figure('units','normalized','outerposition',[0 0 1 1]);
-set(gcf, 'PaperPositionMode', 'auto');
+% figure('units','normalized','outerposition',[0 0 1 1]);
+% set(gcf, 'PaperPositionMode', 'auto');
+figure
 scatter(real(eig3), imag(eig3), 'xm')
 grid minor
-xlabel('Re', fontsize, 14, 'FontName', fonttype)
-ylabel('Im', fontsize, 14, 'FontName', fonttype)
-saveas(gcf, 'plots\diffNVDP3.jpg', 'jpg')
+xlabel('Re', 'FontSize', fontsize, 'FontName', fonttype)
+ylabel('Im', 'FontSize', fontsize, 'FontName', fonttype)
+saveas(gcf, 'plots\diffNVDP3.eps', 'eps')

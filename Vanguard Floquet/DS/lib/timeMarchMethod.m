@@ -4,7 +4,7 @@ function [FTM,FE] = timeMarchMethod(trajData)
     Phi0=eye(d);
     options = odeset('RelTol',1e-14,'AbsTol',1e-14);
     for i=1:d
-        [~,X] = ode15s(@(t,X) timeMarchModel(t, X, trajData),[0,trajData.T],Phi0(:,i),options);
+        [~,X] = ode45(@(t,X) timeMarchModel(t, X, trajData),[0,trajData.T],Phi0(:,i),options);
         Phi(:,i)=X(end,:)';
     end
     FTM = Phi;

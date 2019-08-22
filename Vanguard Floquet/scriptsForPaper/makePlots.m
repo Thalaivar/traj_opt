@@ -1,6 +1,9 @@
 clearvars
 close all
 
+addpath('../DS/lib/')
+addpath('spectralFEconverge\')
+
 global fonttype
 global fontsize
 global markerSZ
@@ -13,3 +16,4 @@ rawResults
 diffNVDP
 goal1StiffPlot
 FSRK4ConsistencyPlot
+plotError
