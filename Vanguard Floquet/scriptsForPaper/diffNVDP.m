@@ -19,25 +19,25 @@ fprintf("%d, %d, %d\n*******************\n", N(1), N(2), N(3))
 % set(gcf, 'PaperPositionMode', 'auto');
 figure
 scatter(real(eig1), imag(eig1), 'xm')
-grid minor
+% grid minor
 xlabel('Re', 'FontSize', fontsize, 'FontName', fonttype)
 ylabel('Im', 'FontSize', fontsize, 'FontName', fonttype)
-saveas(gcf, 'plots\diffNVDP1.eps', 'eps')
+saveas(gcf, 'plots\diffNVDP1.eps', 'epsc')
 
 % figure('units','normalized','outerposition',[0 0 1 1]);
 % set(gcf, 'PaperPositionMode', 'auto');
 figure
 scatter(real(eig2), imag(eig2), 'xm')
-grid minor
+% grid minor
 xlabel('Re', 'FontSize', fontsize, 'FontName', fonttype)
 ylabel('Im', 'FontSize', fontsize, 'FontName', fonttype)
-saveas(gcf, 'plots\diffNVDP2.eps', 'eps')
+saveas(gcf, 'plots\diffNVDP2.eps', 'epsc')
 
 % figure('units','normalized','outerposition',[0 0 1 1]);
 % set(gcf, 'PaperPositionMode', 'auto');
 figure
 scatter(real(eig3), imag(eig3), 'xm')
-grid minor
+% grid minor
 xlabel('Re', 'FontSize', fontsize, 'FontName', fonttype)
 ylabel('Im', 'FontSize', fontsize, 'FontName', fonttype)
-saveas(gcf, 'plots\diffNVDP3.eps', 'eps')
+saveas(gcf, 'plots\diffNVDP3.eps', 'epsc')

@@ -11,8 +11,13 @@ function [FE, eigE] = spectralMethodInterp(trajData, jacEval, N, d)
     end
     
     if(isfield(trajData, 'chiLinearTerm'))
+        if d == 9 || d == 10
+            correctInd = 9;
+        elseif d == 3 || d == 4
+            correctInd = 2;
+        end
         for i = 1:N
-            X(i,2) = X(i,2) + trajData.chiLinearTerm*t(i);
+            X(i,correctInd) = X(i,correctInd) + trajData.chiLinearTerm*t(i);
         end
     end
     

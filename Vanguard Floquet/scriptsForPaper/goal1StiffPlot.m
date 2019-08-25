@@ -23,11 +23,11 @@ scatter(real(eigEp4), imag(eigEp4), 'xm')
 hold on
 scatter(real(tFEp4), imag(tFEp4), 'ob')
 scatter(real(lFEp), imag(lFEp), markerSZ, 'sg', 'LineWidth', lineWD);
-grid minor
+% grid minor
 xlabel('Re', 'FontSize', fontsize, 'FontName', fonttype)
 ylabel('Im', 'FontSize', fontsize, 'FontName', fonttype)
 legend('PS', 'VSTM', 'Liouville')
-saveas(gcf, 'plots\VDPplus4.eps', 'eps')
+saveas(gcf, 'plots\VDPplus4.eps', 'epsc')
 
 load('rawMaterial\m4_300.mat')
 prm.mu = mu;
@@ -44,8 +44,8 @@ scatter(real(eigEm4), imag(eigEm4), 'xm')
 hold on
 scatter(real(tFEm4), imag(tFEm4), 'ob')
 scatter(real(lFEm), imag(lFEm), markerSZ, 'sg', 'LineWidth', lineWD);
-grid minor
+% grid minor
 xlabel('Re', 'FontSize', fontsize, 'FontName', fonttype)
 ylabel('Im', 'FontSize', fontsize, 'FontName', fonttype)
 legend('PS', 'VSTM', 'Liouville')
-saveas(gcf, 'plots\VDPminus4.eps', 'eps')
+saveas(gcf, 'plots\VDPminus4.eps', 'epsc')

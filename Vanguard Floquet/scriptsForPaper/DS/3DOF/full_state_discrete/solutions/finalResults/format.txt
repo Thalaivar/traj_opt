@@ -1,0 +1,2 @@
+format - LS_XX_AM_GS_O_S_E.mat
+(Line separation constr.)_(amt. of separation)_(AM constr.)_(group size constr.)_(shape)_(stability)_(wind shear).mat

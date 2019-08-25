@@ -8,7 +8,7 @@ global fonttype
 global fontsize
 global markerSZ
 
-fonttype = 'Computer Modern';
+fonttype = 'Times New Roman';
 fontsize = 14;
 markerSZ = 80;
 
@@ -16,4 +16,6 @@ rawResults
 diffNVDP
 goal1StiffPlot
 FSRK4ConsistencyPlot
-plotError
+PSConsistencyPlot
+accuracyPlot
+% plotError
