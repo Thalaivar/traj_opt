@@ -71,8 +71,11 @@ function [c, ceq] = constrainFunctionFSD(X, trajData, windShear)
         ceq(end+1) = chiLinearTerm*T + 2*pi;
     end
     
-%     global FE;
-%     relLineSep = 0.01;
+    global FE;
+    relLineSep = 0.5;
+    for i = 1:length(FE)-1
+        c(end+1) = relLineSep - abs(FE(i) - FE(i+1))/abs(real(FE(i)));
+    end
     % linear
 %     if imag(FE(1)) == 0
 %         c(end+1) = relLineSep - real(FE(1) - FE(2))/abs(real(FE(1)));

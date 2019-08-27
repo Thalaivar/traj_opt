@@ -158,4 +158,4 @@ xlabel('$N$', 'Interpreter', 'latex', 'FontSize', fontsize, 'FontName', fonttype
 title(labels{6}, 'Interpreter', 'latex');
 % grid minor
 
-saveas(gcf, 'consistencyPS6DoF.eps', 'epsc')
+saveas(gcf, 'plots/consistencyPS6DoF.eps', 'epsc')

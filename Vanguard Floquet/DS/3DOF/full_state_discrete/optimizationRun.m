@@ -1,11 +1,11 @@
 clearvars
 addpath('../../lib/')
 
-saveFile = 'solutions/trajectoryOptimized/VROpt_E70.mat';
+% saveFile = 'solutions/trajectoryOptimized/VROpt_E70.mat';
 % saveFile = 'solutions/IGs/IG_circle_expo_50.mat';
 
 tic;
-solStruct = stabilityOptimization('VROpt_E70.mat', 'circle', 'not-same');
+solStruct = stabilityOptimization('VROpt_E50.mat', 'circle', 'not-same');
 optTime = toc;
 
 sol = solStruct.sol;

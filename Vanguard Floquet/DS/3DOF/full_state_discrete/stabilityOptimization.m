@@ -2,8 +2,8 @@ function solStruct = stabilityOptimization(initialGuessSaveFile, type, windShear
     load(initialGuessSaveFile)
 %     p = 0.25;
     
-    N = 80; 
-    sol = interpolateSolution('full-state', sol, N, type);
+%     N = 80; 
+%     sol = interpolateSolution('full-state', sol, N, type);
     
     [D, fourierGrid] = fourierdiff(N);
     column2 = [-(N^2)/12-1/6, -((-1).^(1:(N-1)))./(2*(sin((1:(N-1))*pi/N)).^2)];
@@ -30,7 +30,7 @@ function solStruct = stabilityOptimization(initialGuessSaveFile, type, windShear
     [lb, ub] = optimbounds(N, type, windShear, sol(8*N+2));
     
     options = optimoptions('fmincon', 'Display', 'iter', 'Algorithm', 'sqp', 'UseParallel', true);
-    options.MaxIterations = 10000;
+    options.MaxIterations = 182;
     options.MaxFunctionEvaluations = 100000000;
 %     options.StepTolerance = 1e-12;
     
