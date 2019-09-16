@@ -1,7 +1,7 @@
-  function lam = LouivilleVDP(trajData)
+  function lam = Louiville(trajData, jacEval)
     intQuad = 0;
     for i = 1:trajData.N
-        A = jacVDP(trajData.X(i,:), trajData);
+        A = jacEval(trajData.X(i,:), trajData);
         intQuad = intQuad + trace(A);
     end
     

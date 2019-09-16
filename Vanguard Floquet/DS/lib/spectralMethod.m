@@ -20,6 +20,7 @@ function [FE, eigE, AM, groupSizes, eigVec] = spectralMethod(trajData)
     eigE = -1*diag(eigE);
     
     [FE,groupSizes,AM] = identifyFloquet(eigE, N, trajData.T);
+%     [grp,idx,trim_ind] = estEigGroups(eigE,N,T,[]);
 end
 
 function A = sysModel(p, Z, U)

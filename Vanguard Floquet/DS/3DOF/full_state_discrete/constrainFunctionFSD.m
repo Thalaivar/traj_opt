@@ -72,10 +72,16 @@ function [c, ceq] = constrainFunctionFSD(X, trajData, windShear)
     end
     
     global FE;
-    relLineSep = 0.5;
+    relLineSep = 0.01;
     for i = 1:length(FE)-1
-        c(end+1) = relLineSep - abs(FE(i) - FE(i+1))/abs(real(FE(i)));
+        relDiscrep = real(FE(i) - FE(i+1))/abs(real(FE(i)));
+        if(imag(FE(i)) ~= 0 && imag(FE(i+1)) ~= 0 && real(FE(i)) == real(FE(i+1))), relDiscrep = 1.1*relLineSep; end
+        c(end+1) = relLineSep - relDiscrep;
     end
+    
+%     if length(c) ~= 353
+%         "STOP!"
+%     end
     % linear
 %     if imag(FE(1)) == 0
 %         c(end+1) = relLineSep - real(FE(1) - FE(2))/abs(real(FE(1)));

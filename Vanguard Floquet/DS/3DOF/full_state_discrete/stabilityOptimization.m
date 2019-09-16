@@ -1,6 +1,6 @@
 function solStruct = stabilityOptimization(initialGuessSaveFile, type, windShear)
     load(initialGuessSaveFile)
-%     p = 0.25;
+%     p = 1;
     
 %     N = 80; 
 %     sol = interpolateSolution('full-state', sol, N, type);
@@ -30,9 +30,9 @@ function solStruct = stabilityOptimization(initialGuessSaveFile, type, windShear
     [lb, ub] = optimbounds(N, type, windShear, sol(8*N+2));
     
     options = optimoptions('fmincon', 'Display', 'iter', 'Algorithm', 'sqp', 'UseParallel', true);
-    options.MaxIterations = 182;
+    options.MaxIterations = 224;
     options.MaxFunctionEvaluations = 100000000;
-%     options.StepTolerance = 1e-12;
+    options.StepTolerance = 1e-12;
     
     sol = fmincon(@(X) optimizeStabilityFSD(X, trajData, windShear), X0, [], [], [], [], lb, ub, @(X) constrainFunctionFSD(X, trajData, windShear), options);
     
@@ -75,8 +75,8 @@ function [lb, ub] = optimbounds(N, type, windShear, VR0)
         end
     else
         lb(8*N+2) = 0; 
-%         ub(8*N+2) = 1.2*VR0;
-        ub(8*N+2) = 100;
+        ub(8*N+2) = 1.2*VR0;
+%         ub(8*N+2) = 100;
         if strcmp(type, 'circle')
             lb(8*N+3) = -Inf; ub(8*N+3) = Inf;
         end

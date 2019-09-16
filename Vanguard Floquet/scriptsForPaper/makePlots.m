@@ -18,4 +18,4 @@ goal1StiffPlot
 FSRK4ConsistencyPlot
 PSConsistencyPlot
 accuracyPlot
-% plotError
+plotError

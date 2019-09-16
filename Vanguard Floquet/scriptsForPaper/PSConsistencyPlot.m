@@ -28,11 +28,12 @@ end
 
 figure
 % grid minor
-semilogy(N, 100*discrepData(1,:), '--om');
+semilogy(N, 100*discrepData(1,:), 'ob');
 hold on
-semilogy(N, 100*discrepData(2,:), '--sb');
-semilogy(N, 100*discrepData(3,:), '--dr');
-legend({'$\lambda_1 = -0.0260 + 0.0891\mathrm{i}$', '$\lambda_2 = -0.0260 - 0.0891\mathrm{i}$', '$\lambda_3 = -0.0499$'}, 'Interpreter', 'latex')
+semilogy(N, 100*discrepData(3,:), 'dr');
+legend({'$\lambda_o^1 = -0.0260 + 0.0891\mathrm{i}$', '$\lambda_o^2 = -0.0499$'}, 'Interpreter', 'latex', 'FontSize', 12)
 xlabel('$N$', 'Interpreter', 'latex', 'FontSize', fontsize, 'FontName', fonttype)
-ylabel('$\%$ Relative Error', 'FontSize', fontsize, 'FontName', fonttype, 'Interpreter', 'latex')
+% ylabel('$\%$ Relative Error', 'FontSize', fontsize, 'FontName', fonttype, 'Interpreter', 'latex')
+ylim([1e-8, 1])
+set(gca, 'TicklabelInterpreter', 'latex');
 saveas(gcf, 'plots\consistencyPS.eps', 'epsc')

@@ -1,5 +1,5 @@
 function [FE, groupSizes, AM] = identifyFloquet(eigE, N, T)
-    imRelTol = 1e-2; reRelTol = 1e-2; reAbsTol = 1e-4;
+    imRelTol = 1e-2; reRelTol = 5e-3; reAbsTol = 1e-4;
     if(0.25*N < 2*pi/T)
         error("N is not large enough, must be at least 8*pi/T")
     end

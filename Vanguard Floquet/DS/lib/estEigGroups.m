@@ -17,7 +17,7 @@ function [grp,idx,trim_ind] = estEigGroups(eigE,N,T,grpMax)
 
 global chkTol chkRelTol nearZeroTol
 chkTol = 1e-2;      % for imModulo
-chkRelTol = 1e-3;   % for reCheck and currGroup
+chkRelTol = 1e-4;   % for reCheck and currGroup
 nearZeroTol = 1e-3; % for reCheck and currGroup
 
 if isempty(grpMax)

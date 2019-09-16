@@ -46,5 +46,5 @@ function [FE, eigE] = spectralMethodInterp(trajData, jacEval, N, d)
     
     eigE = eig(Dmat - Mmat);
     eigE = -1*eigE;
-    FE = identifyFloquet(eigE, N, trajData.T);
+    FE = []; % identifyFloquet(eigE, N, trajData.T);
 end

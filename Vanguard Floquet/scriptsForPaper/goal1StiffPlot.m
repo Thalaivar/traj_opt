@@ -1,8 +1,8 @@
 global fonttype
 global fontsize
-global markerSZ
 
-lineWD = 2; 
+markerSZ = 75;
+lineWD = 1; 
 
 load('rawMaterial\4_300.mat')
 
@@ -21,12 +21,13 @@ lFEp = LouivilleVDP(trajData);
 figure 
 scatter(real(eigEp4), imag(eigEp4), 'xm')
 hold on
-scatter(real(tFEp4), imag(tFEp4), 'ob')
 scatter(real(lFEp), imag(lFEp), markerSZ, 'sg', 'LineWidth', lineWD);
+scatter(real(tFEp4), imag(tFEp4), 'ob')
 % grid minor
 xlabel('Re', 'FontSize', fontsize, 'FontName', fonttype)
 ylabel('Im', 'FontSize', fontsize, 'FontName', fonttype)
-legend('PS', 'VSTM', 'Liouville')
+% legend('PS', 'VSTM', 'Liouville')
+set(gca, 'TicklabelInterpreter', 'latex');
 saveas(gcf, 'plots\VDPplus4.eps', 'epsc')
 
 load('rawMaterial\m4_300.mat')
@@ -42,10 +43,15 @@ lFEm = LouivilleVDP(trajData);
 figure 
 scatter(real(eigEm4), imag(eigEm4), 'xm')
 hold on
-scatter(real(tFEm4), imag(tFEm4), 'ob')
 scatter(real(lFEm), imag(lFEm), markerSZ, 'sg', 'LineWidth', lineWD);
+scatter(real(tFEm4), imag(tFEm4), 'ob')
 % grid minor
 xlabel('Re', 'FontSize', fontsize, 'FontName', fonttype)
 ylabel('Im', 'FontSize', fontsize, 'FontName', fonttype)
-legend('PS', 'VSTM', 'Liouville')
+lgnd = legend('PS', 'Liouville $\lambda_o^{\neq 0}$', 'ASTM');
+temp = [lgnd; lgnd.ItemText];
+% set(temp, 'FontSize', 14)
+set(temp, 'FontName', 'Times New Roman')
+set(temp, 'Interpreter', 'latex')
+set(gca, 'TicklabelInterpreter', 'latex');
 saveas(gcf, 'plots\VDPminus4.eps', 'epsc')

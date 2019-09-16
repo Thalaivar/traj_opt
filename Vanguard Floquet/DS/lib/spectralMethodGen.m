@@ -22,4 +22,5 @@ function [FE, eigE, eigVec] = spectralMethodGen(trajData, jacEval, d)
     eigE = -1*diag(eigE);
     
     FE = identifyFloquet(eigE, N, trajData.T);
+%     [grp,idx,trim_ind] = estEigGroups(eigE,N,T,[]);
 end

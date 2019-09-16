@@ -29,11 +29,12 @@ end
 % set(gcf, 'PaperPositionMode', 'auto');
 figure
 % grid minor
-semilogy(N, 100*discrepData(1,:), '--om');
+plot(N, 100*discrepData(1,:), 'ob');
 hold on
-semilogy(N, 100*discrepData(2,:), '--sb');
-semilogy(N, 100*discrepData(3,:), '--dr');
+% plot(N, 100*discrepData(2,:), '--sb');
+plot(N, 100*discrepData(3,:), 'dr');
 % legend({'$\lambda_1 = -0.0260 + 0.0891\mathrm{i}$', '$\lambda_2 = -0.0260 - 0.0891\mathrm{i}$', '$\lambda_3 = -0.0499$'}, 'Interpreter', 'latex')
 xlabel('$N$', 'Interpreter', 'latex', 'FontSize', fontsize, 'FontName', fonttype)
 ylabel('$\%$ Relative Error', 'FontSize', fontsize, 'FontName', fonttype, 'Interpreter', 'latex')
+set(gca, 'TicklabelInterpreter', 'latex');
 saveas(gcf, 'plots\consistencyFSRK4.eps', 'epsc')
