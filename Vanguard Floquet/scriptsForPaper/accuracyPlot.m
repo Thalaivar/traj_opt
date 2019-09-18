@@ -1,7 +1,7 @@
 global fonttype
 global fontsize
 
-load('rawMaterial\result_N400_OLin.mat');
+load('rawMaterial/result_N400_OLin.mat');
 prm.model = '3dof';
 prm.p = 1;
 prm.correctChi = false; prm.loiter = true;
